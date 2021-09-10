@@ -88,7 +88,7 @@ int AdicionaComanda(Comandas *comanda)
 {
     int mesa, prato, adicao = 0;
 
-    cout << "Mesa: ";
+    cout << "Mesa: ";       // Pergunta para qual mesa a comanda vai ser criada, e qual prato vai ser adicionado, depois verifica se a mesa existe.
     cin >> mesa;
 
         if (mesa < 1 || mesa > MAX_MESA)
@@ -97,32 +97,28 @@ int AdicionaComanda(Comandas *comanda)
             return -1;
         }
 
-        // Pergunta para qual mesa a comanda vai ser criar, ou o prato vai ser adicionado, depois verifica se a mesa existe.
-
-    cout << "\nAo final, selecione prato \"0\" para encerrar adicao.\n";
+    cout << "\nAo final, selecione prato \"0\" para encerrar adicao.\n";    
     cout << "Numero do prato a adicionar: ";
     cin >> prato;
 
-        if (prato < 0 || prato > MAX_PRATOS)
+        if (prato < 0 || prato > MAX_PRATOS)         // Seleciona o prato desejado e verifica se o prato existe.
         {
             cout << "Prato " << prato <<" inválido" << endl;
             return -1;
         }
 
-        // Seleciona o prato desejado e verifica se o prato existe.
-
-    while (prato && prato <= MAX_PRATOS)
+    while (prato && prato <= MAX_PRATOS)    //prato != 0 e <= ao MAX_PRATOS
     {
         cout << "Quantidade: ";
         cin >> adicao;
 
-        comanda[mesa-1].quantidade[prato] += adicao;
+        comanda[mesa-1].quantidade[prato-1] += adicao;      //prato e mesa 5 equivale, no array, ao [4]
 
         cout << "Numero do prato a adicionar: ";
         cin >> prato;
     }
 
-    // Adiciona a quantidade de pratos, por exxemplo, feijoada 2(duas feijoadas).
+    // Adiciona a quantidade de pratos, por exemplo, feijoada 2 (duas feijoadas).
     return mesa;
 }
 
@@ -137,7 +133,7 @@ void Menu(int opcao, Comandas *comanda, int *tpedidos)     //menu para selecao d
     {
         int mesa = AdicionaComanda(comanda);
         if(mesa >= 1){
-            *tpedidos++;
+            *tpedidos += 1;
             comanda[mesa-1].ordem = *tpedidos;
         }
     }

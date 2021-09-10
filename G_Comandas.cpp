@@ -1,9 +1,9 @@
 #include <iostream>
 #include <string.h>
 
-#define MAX_PRATOS 5 // Máximo de pratos no "cardapio".
-#define MAX_DESC 25  // Máximo de pedidos de cada prato por dia.
-#define MAX_MESA 10  // Máximo de mesas no restaurante.
+#define MAX_PRATOS 5    //Máximo de pratos no "cardapio".
+#define MAX_DESC 25    //Máximo de caracteres de cada prato.
+#define MAX_MESA 10    //Máximo de mesas no restaurante.
 
 using namespace std;
 

@@ -21,7 +21,7 @@ void fecharComanda(Comandas *comanda, int *tPedidos){
     cin >> mesa;
 
     if (mesa < 1 || mesa > MAX_MESA){
-        cout << "Mesa " << mesa <<" inválida" << endl;
+        cout << "Mesa " << mesa <<" invalida" << endl;
         return;
     }
 
@@ -93,7 +93,7 @@ int AdicionaComanda(Comandas *comanda)
 
         if (mesa < 1 || mesa > MAX_MESA)
         {
-            cout << "Mesa " << mesa <<" inválida" << endl;
+            cout << "Mesa " << mesa <<" invalida" << endl;
             return -1;
         }
 
@@ -103,7 +103,7 @@ int AdicionaComanda(Comandas *comanda)
 
         if (prato < 0 || prato > MAX_PRATOS)         // Seleciona o prato desejado e verifica se o prato existe.
         {
-            cout << "Prato " << prato <<" inválido" << endl;
+            cout << "Prato " << prato <<" invalido" << endl;
             return -1;
         }
 

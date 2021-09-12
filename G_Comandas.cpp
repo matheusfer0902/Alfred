@@ -36,13 +36,13 @@ void fecharComanda(Comandas *comanda, int *tPedidos){
 
         case 1:         // Para fechar toda a comanda eu vejo qual a comanda da mesa e a zero toda a quantidade.
             for(i = 0; i < MAX_PRATOS; i++){
-                comanda[mesa].quantidade[i] = 0;        //! tem q zerar a ordem tb 
-            }
+                comanda[mesa].quantidade[i] = 0;        //! mesa
+            }                                           //! ordem = 0
             break;
 
         case 2:         /* Para fechar o ultimo item eu usei um ponteiro de ponteiro pra saber qual o valor do contador de pedidos,
                         pra usar esse contador como base para zerar a quantidade do ultimo pedido */
-            comanda[mesa].quantidade[*tPedidos] = 0;        //* ponteiro de ponteiro deu erro, mas da pra usar o ponteiro normal
+            comanda[mesa].quantidade[*tPedidos] = 0; 
             i = 1;
             while(op != 3){
                 cout << "1 - Remover mais um item" << endl;
@@ -55,8 +55,8 @@ void fecharComanda(Comandas *comanda, int *tPedidos){
                 switch(op)
                 {
                 case 1:         // Para remover o novo ultimo pedido eu uso o "i", por isso que eu iniciei ele como 1 antes.
-                    comanda[mesa].quantidade[*tPedidos - i] = 0;        //? tpedidos - i?
-                    i++;
+                    comanda[mesa].quantidade[*tPedidos - i] = 0;    
+                    i++;                                           //? *tpedidos - i?
                     break;
 
                 case 2:         // Mesma logica para remover toda a função novamente

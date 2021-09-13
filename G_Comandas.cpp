@@ -28,9 +28,10 @@ void Clear()
 }
 
 int fecharComanda(Comandas *comanda){       // cancela um pedido / zera comanda
-    int i, op = 0, prato = 0, mesa;
+    int i, op = 1, prato = 0, mesa;
     int q = 0;
 
+    cout << "\n         Selecione \"0\" a qualquer momento para encerrar operacao.";
     cout << "\nMesa: ";
     cin >> mesa;
 
@@ -40,8 +41,7 @@ int fecharComanda(Comandas *comanda){       // cancela um pedido / zera comanda
 
     while(op){         // As opções pra fechar a comanda são: Fechar toda a comanda ou fechar itens especificos.
 
-        cout << "\n0 - Voltar\n"
-             << "1 - Fechar toda a comanda\n"
+        cout << "\n1 - Fechar toda a comanda\n"
              << "2 - Fechar um item especifico da comanda\n";
         
         cin >> op;
@@ -77,8 +77,9 @@ int fecharComanda(Comandas *comanda){       // cancela um pedido / zera comanda
 
                 comanda[mesa - 1].quantidade[prato - 1] = comanda[mesa - 1].quantidade[prato - 1] - q;  //subtrai o prato
             }
+                break;
             default:
-                return 1;
+                return op;
             }
     }
     return 0;
@@ -88,7 +89,7 @@ int AdicionaComanda(Comandas *comanda, int *mesa)       // adiciona / cria coman
 {
     int prato, adicao = 0;
 
-    cout << "\n         Selecione \"0\" para encerrar adicao a qualquer momento.";
+    cout << "\n         Selecione \"0\" a qualquer momento para encerrar operacao.";
     cout << "\nMesa: ";       // Pergunta para qual mesa a comanda vai ser criada, e qual prato vai ser adicionado, depois verifica se a mesa existe.
     cin >> *mesa;
 
@@ -127,7 +128,7 @@ void Menu(int opcao, Comandas *comanda, int *tpedidos, int *erro)     //menu par
                 É importante perceber, também, que o número de pedidos e os pratos estão alinhados graças a linha --.*/
     case 1:
         *erro = AdicionaComanda(comanda, &mesa);
-        if(mesa >= 1){
+        if(mesa >= 1 && mesa <= MAX_MESA && (*erro == 0)){
             *tpedidos += 1;
             comanda[mesa-1].ordem = *tpedidos;
         }
@@ -195,7 +196,7 @@ int main(int argc, char const *argv[])
     // A variável tpedidos guarda o total de pedidos no dia e orienta a ordem
     // É definido também, o array das comandas
 
-    cout << "Bem-vindo!\n";
+    cout << "           Bem-vindo!\n";
 
     while (1)
     {

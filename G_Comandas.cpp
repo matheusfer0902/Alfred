@@ -58,7 +58,7 @@ int fecharUmItemComanda(Comandas *comanda){
     return 0;
 }
 
-int fecharComanda(Comandas *comanda){       // cancela um pedido / zera comanda
+int fecharComanda(Comandas *comanda){       // zera comanda
     int i, mesa;
 
     cout << "\n         Selecione \"0\" a qualquer momento para encerrar operacao.";
@@ -132,7 +132,7 @@ void Menu(int opcao, Comandas *comanda, int *tpedidos, int *erro)     //menu par
         *erro = AdicionaComanda(comanda, &mesa);
         break;
 
-    case 3:     // Fecha uma comanda ou diminui um pedido
+    case 3:     // diminui um pedido
         *erro = fecharUmItemComanda(comanda);
         break;
 
@@ -213,8 +213,9 @@ int main(int argc, char const *argv[])
 
         cin >> opcao;
 
-        if(opcao == 5)
-                    break;
+        if(opcao == 5){
+            break;
+        }
 
         Menu(opcao, comanda, &tpedidos, &erro);
 
@@ -223,7 +224,7 @@ int main(int argc, char const *argv[])
         ExibePedidos(comanda);
     }
 
-    /* Na main apenas apresentamos o menu, que fica no loop infinito até que seja enviado pelo teclado o número 4.
+    /* Na main apenas apresentamos o menu, que fica no loop infinito até que seja enviado pelo teclado o número 5.
        As opções do menu são colocadas em uma função "Menu" onde lá acontece a divisão para cada função do programa.*/
 
     return 0;

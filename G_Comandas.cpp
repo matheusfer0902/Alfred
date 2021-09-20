@@ -14,21 +14,21 @@ typedef struct      // Struct definida para os pedidos. Para primeira versão, a
     int quantidade[MAX_PRATOS] {0}; // Quantidade do mesmo prato no pedido mesa.
 } Comandas;
 
-void Clear() 
+void Clear()
 {
 #if defined _WIN32
     system("cls");
     //clrscr(); // including header file : conio.h
 #elif defined (__LINUX__) || defined(__gnu_linux__) || defined(__linux__)
     system("clear");
-    //std::cout<< u8"\033[2J\033[1;1H"; //Using ANSI Escape Sequences 
+    //std::cout<< u8"\033[2J\033[1;1H"; //Using ANSI Escape Sequences
 #elif defined (__APPLE__)
     system("clear");
 #endif
 }
 
-int fecharComanda(Comandas *comanda){       // cancela um pedido / zera comanda
-    int i, op = 1, prato = 0, mesa;
+int fecharUmItemComanda(Comandas *comanda){
+    int i, prato = 0, mesa;
     int q = 0;
 
     cout << "\n         Selecione \"0\" a qualquer momento para encerrar operacao.";
@@ -39,51 +39,45 @@ int fecharComanda(Comandas *comanda){       // cancela um pedido / zera comanda
         return mesa;
     }
 
-    while(op){         // As opções pra fechar a comanda são: Fechar toda a comanda ou fechar itens especificos.
+    cout << "\nEscolha o prato que quer retirar:" << endl;
+    cin >> prato;                                       // ID do prato de acordo com o cardapio
 
-        cout << "\n1 - Fechar toda a comanda\n"
-             << "2 - Fechar um item especifico da comanda\n";
-        
-        cin >> op;
-
-            switch(op)
-            {
-            case 0:
-                return 0;
-            
-            case 1:
-            {                               // Para fechar toda a comanda eu vejo qual a comanda da mesa e a zero toda a quantidade.
-                for(i = 0; i < MAX_PRATOS; i++){
-                    comanda[mesa - 1].quantidade[i] = 0;
-                }
-                comanda[mesa - 1].ordem = 0;    // ordem = 0 para pois nao tem mais pedidos para a mesa.
-                return 0;
-            }
-            case 2:
-            {
-                cout << "\nEscolha o prato que quer retirar:" << endl;
-                cin >> prato;                                       // ID do prato de acordo com o cardapio
-                
-                if (prato < 1 || prato > MAX_PRATOS){               //verifica validade da opção digitada
-                    return prato;
-                }
-
-                cout << "Escolha a quantidade que quer retirar:" << endl;
-                cin >> q;     // quantidade do prato que quer retirar
-
-                if (q < 1 || comanda[mesa - 1].quantidade[prato - 1] < q){      //verifica validade da opção digitada
-                    return q;
-                }
-
-                comanda[mesa - 1].quantidade[prato - 1] = comanda[mesa - 1].quantidade[prato - 1] - q;  //subtrai o prato
-            }
-                break;
-            default:
-                return op;
-            }
+    if (prato < 1 || prato > MAX_PRATOS){               //verifica validade da opção digitada
+        return prato;
     }
+
+    cout << "Escolha a quantidade que quer retirar:" << endl;
+    cin >> q;     // quantidade do prato que quer retirar
+
+    if (q < 1 || comanda[mesa - 1].quantidade[prato - 1] < q){      //verifica validade da opção digitada
+        return q;
+    }
+
+    comanda[mesa - 1].quantidade[prato - 1] = comanda[mesa - 1].quantidade[prato - 1] - q;  //subtrai o prato
+
     return 0;
 }
+
+int fecharComanda(Comandas *comanda){       // cancela um pedido / zera comanda
+    int i, mesa;
+
+    cout << "\n         Selecione \"0\" a qualquer momento para encerrar operacao.";
+    cout << "\nMesa: ";
+    cin >> mesa;
+
+    if (mesa < 1 || mesa > MAX_MESA){
+        return mesa;
+    }
+
+    // Para fechar toda a comanda eu vejo qual a comanda da mesa e a zero toda a quantidade.
+    for(i = 0; i < MAX_PRATOS; i++){
+        comanda[mesa - 1].quantidade[i] = 0;
+    }
+
+    comanda[mesa - 1].ordem = 0;    // ordem = 0 para pois nao tem mais pedidos para a mesa.
+
+    return 0;
+    }
 
 int AdicionaComanda(Comandas *comanda, int *mesa)       // adiciona / cria comandas
 {
@@ -139,6 +133,10 @@ void Menu(int opcao, Comandas *comanda, int *tpedidos, int *erro)     //menu par
         break;
 
     case 3:     // Fecha uma comanda ou diminui um pedido
+        *erro = fecharUmItemComanda(comanda);
+        break;
+
+    case 4:
         *erro = fecharComanda(comanda);
         break;
 
@@ -203,8 +201,9 @@ int main(int argc, char const *argv[])
         cout << "\nSelecione uma opcao:\n"
         << "1 - Nova comanda\n"
         << "2 - Adicionar na comanda\n"
-        << "3 - Fechar comanda\n"
-        << "4 - Sair\n";
+        << "3 - Fechar um item da comanda\n"
+        << "4 - Fechar toda a comanda\n"
+        << "5 - Sair\n";
 
         if (erro)       // verifica o retorno de erro de todas as funções
         {
@@ -213,10 +212,10 @@ int main(int argc, char const *argv[])
         }
 
         cin >> opcao;
-        
-        if(opcao == 4)
+
+        if(opcao == 5)
                     break;
-        
+
         Menu(opcao, comanda, &tpedidos, &erro);
 
         Clear();        // mantem limpo o terminal padrão do Windows / Linux / Apple e evita poluição

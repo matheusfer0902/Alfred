@@ -28,7 +28,7 @@ void Clear()
 }
 
 int fecharUmItemComanda(Comandas *comanda){
-    int i, prato = 0, mesa;
+    int prato = 0, mesa;
     int q = 0;
 
     cout << "\n         Selecione \"0\" a qualquer momento para encerrar operacao.";

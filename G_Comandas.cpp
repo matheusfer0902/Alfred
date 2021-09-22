@@ -18,10 +18,10 @@ void Clear()
 {
 #if defined _WIN32
     system("cls");
-    //clrscr(); // including header file : conio.h
+    //clrscr(); // conio.h
 #elif defined (__LINUX__) || defined(__gnu_linux__) || defined(__linux__)
     system("clear");
-    //std::cout<< u8"\033[2J\033[1;1H"; //Using ANSI Escape Sequences
+    //std::cout<< u8"\033[2J\033[1;1H"; //ANSI
 #elif defined (__APPLE__)
     system("clear");
 #endif
@@ -117,9 +117,7 @@ void Menu(int opcao, Comandas *comanda, int *tpedidos, int *erro)     //menu par
     int mesa;
     switch (opcao)
     {           /* Na primeira opção, vai ser feita uma nova comanda, atraves da função "AdicionaComanda".
-                Além disso, o número total de pedidos é incrementado
-                já que a criação da comanda só pode ser feita com o pedido de um prato.
-                É importante perceber, também, que o número de pedidos e os pratos estão alinhados graças a linha --.*/
+                Além disso, o número total de pedidos é incrementado*/
     case 1:
         *erro = AdicionaComanda(comanda, &mesa);
         if(mesa >= 1 && mesa <= MAX_MESA && (*erro == 0)){
@@ -168,9 +166,9 @@ void ExibePedidos(Comandas *comanda)        // imprime as comandas em ordem
             if (comanda[i].ordem == primeiro)
             {
                 primeiro++;
-                imprimiu = 1;
-
-                cout << "\nPedido N.: " << comanda[i].ordem << " ----- Mesa: " << i+1 << endl;    //imprime cabeçalho da comanda
+                imprimiu = 1;                             
+                                                
+                cout << "\nPedido N.: " << comanda[i].ordem << " ----- Mesa: " << i+1 << endl;  // cabeçalho
 
                 for (size_t j = 0; j < MAX_PRATOS; j++)     //imprime pedidos da mesa
                 {
@@ -223,9 +221,5 @@ int main(int argc, char const *argv[])
 
         ExibePedidos(comanda);
     }
-
-    /* Na main apenas apresentamos o menu, que fica no loop infinito até que seja enviado pelo teclado o número 5.
-       As opções do menu são colocadas em uma função "Menu" onde lá acontece a divisão para cada função do programa.*/
-
     return 0;
 }

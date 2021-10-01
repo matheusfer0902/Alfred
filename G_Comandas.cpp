@@ -116,7 +116,8 @@ void Menu(int opcao, Comandas *comanda, int *tpedidos, int *erro)     //menu par
 {
     int mesa;
     switch (opcao)
-    {           /* Na primeira opção, vai ser feita uma nova comanda, atraves da função "AdicionaComanda".
+    {           
+        /* Na primeira opção, vai ser feita uma nova comanda, atraves da função "AdicionaComanda".
                 Além disso, o número total de pedidos é incrementado*/
     case 1:
         *erro = AdicionaComanda(comanda, &mesa);

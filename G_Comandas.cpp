@@ -27,37 +27,6 @@ void Clear()
 #endif
 }
 
-int fecharUmItemComanda(Comandas *comanda){
-    int prato = 0, mesa;
-    int q = 0;
-
-    cout << "\n         Selecione \"0\" a qualquer momento para encerrar operacao.";
-    cout << "\nMesa: ";
-    cin >> mesa;
-
-    if (mesa < 1 || mesa > MAX_MESA){
-        return mesa;
-    }
-
-    cout << "\nEscolha o prato que quer retirar:" << endl;
-    cin >> prato;                                       // ID do prato de acordo com o cardapio
-
-    if (prato < 1 || prato > MAX_PRATOS){               //verifica validade da opção digitada
-        return prato;
-    }
-
-    cout << "Escolha a quantidade que quer retirar:" << endl;
-    cin >> q;     // quantidade do prato que quer retirar
-
-    if (q < 1 || comanda[mesa - 1].quantidade[prato - 1] < q){      //verifica validade da opção digitada
-        return q;
-    }
-
-    comanda[mesa - 1].quantidade[prato - 1] = comanda[mesa - 1].quantidade[prato - 1] - q;  //subtrai o prato
-
-    return 0;
-}
-
 int fecharComanda(Comandas *comanda){       // zera comanda
     int i, mesa;
 
@@ -79,9 +48,9 @@ int fecharComanda(Comandas *comanda){       // zera comanda
     return 0;
     }
 
-int AdicionaComanda(Comandas *comanda, int *mesa)       // adiciona / cria comandas
+    int EditaComanda(Comandas *comanda, int *mesa, int operacao)       // adiciona / cria comandas
 {
-    int prato, adicao = 0;
+    int prato, edicao = 0;
 
     cout << "\n         Selecione \"0\" a qualquer momento para encerrar operacao.";
     cout << "\nMesa: ";       // Pergunta para qual mesa a comanda vai ser criada, e qual prato vai ser adicionado, depois verifica se a mesa existe.
@@ -92,21 +61,23 @@ int AdicionaComanda(Comandas *comanda, int *mesa)       // adiciona / cria coman
             return *mesa;
         }
 
-    cout << "Numero do prato a adicionar: ";
+    printf("Numero do prato a %s", operacao > 0 ? "adicionar: " : "remover: ");
+    //cout << "Numero do prato a adicionar: ";
     cin >> prato;
-
+    
     while (prato && prato <= MAX_PRATOS)    // verificação e retorno de erro
     {
         cout << "Quantidade: ";
-        cin >> adicao;
+        cin >> edicao;
 
-        if (adicao < 1){
-            return adicao;
+        if (edicao < 1 || (operacao < 0 && comanda[*mesa-1].quantidade[prato-1] < edicao)){
+            return edicao;
         }                                                    //adição do prato
 
-        comanda[*mesa-1].quantidade[prato-1] += adicao;      //prato e mesa 5 equivale, no array, ao [4]
+        comanda[*mesa-1].quantidade[prato-1] += edicao * operacao;      //prato e mesa 5 equivale, no array, ao [4]
 
-        cout << "\nNumero do prato a adicionar: ";
+        printf("Numero do prato a %s", operacao > 0 ? "adicionar: " : "remover: ");
+        //cout << "\nNumero do prato a adicionar: ";
         cin >> prato;
     }
     return prato;       // retorna prato como possivel erro
@@ -117,10 +88,10 @@ void Menu(int opcao, Comandas *comanda, int *tpedidos, int *erro)     //menu par
     int mesa;
     switch (opcao)
     {           
-        /* Na primeira opção, vai ser feita uma nova comanda, atraves da função "AdicionaComanda".
+        /* Na primeira opção, vai ser feita uma nova comanda, atraves da função "EditaComanda".
                 Além disso, o número total de pedidos é incrementado*/
     case 1:
-        *erro = AdicionaComanda(comanda, &mesa);
+        *erro = EditaComanda(comanda, &mesa, 1);
         if(mesa >= 1 && mesa <= MAX_MESA && (*erro == 0)){
             *tpedidos += 1;
             comanda[mesa-1].ordem = *tpedidos;
@@ -128,11 +99,11 @@ void Menu(int opcao, Comandas *comanda, int *tpedidos, int *erro)     //menu par
         break;
 
     case 2:     // Usa a mesma função de criação da comanda para adicionar um novo prato.
-        *erro = AdicionaComanda(comanda, &mesa);
+        *erro = EditaComanda(comanda, &mesa, 1);
         break;
 
     case 3:     // diminui um pedido
-        *erro = fecharUmItemComanda(comanda);
+        *erro = EditaComanda(comanda, &mesa, -1);
         break;
 
     case 4:

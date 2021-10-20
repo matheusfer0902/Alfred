@@ -2,33 +2,36 @@
 
 using namespace pkt_comanda;
 	
-Pedido::Pedido()
+Pedido::Pedido(int prato, int quantidade)
 {
-    quantidade = 0;
-    prato = 0;
-}
-	
-Pedido::~Pedido()
-{
-	
+    this->prato = prato;
+    this->quantidade = quantidade;
 }
 
-void Pedido::setQuantidade(int q){
-    quantidade = q;
+Pedido::~Pedido()
+{
+    //dtor
 }
-void Pedido::setPrato(int p){
-    prato = p;
-}  
+
+int Pedido::getPrato(){
+    return prato;
+}
 
 int Pedido::getQuantidade(){
     return quantidade;
 }
-int Pedido::getPrato(){
-    return prato;
-}
+
 std::string Pedido::getStrPrato(){
-    
-    std::string sPrato(cardapio[prato]);
-    
+
+    std::string sPrato = cardapio[prato];
+
     return sPrato;
+}
+
+void Pedido::setPrato(int p){
+    prato = p;
+}
+
+void Pedido::setQuantidade(int q){
+    quantidade = q;
 }

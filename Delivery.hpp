@@ -6,7 +6,7 @@
 
 namespace pkt_comanda {
 
-class Delivery: public Cliente
+class Delivery: public Cliente // Delivery herda de pedido porque o delivery tambem vai realizar um pedido
 {
 	private:
 
@@ -14,10 +14,11 @@ class Delivery: public Cliente
 
 	public:
 
+		Delivery(std::string endereco, std::string contato); // o delivery precisa do pedido e também das informações do cliente
 		Delivery();
 
-		void setContato(std::string tell);
-		void setEndereco(std::string end);
+		void setContato(std::string c);
+		void setEndereco(std::string e);
 
 		std::string getContato();
 		std::string getEndereco();

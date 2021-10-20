@@ -6,7 +6,7 @@
 
 namespace pkt_comanda {
 	
-class Cliente
+class Cliente // Os dados dos clientes são necessarios para o delivery, já que no restaurante o controle vai ser feito pela comanda.
 {
 	protected:
 		
@@ -14,9 +14,11 @@ class Cliente
 
 	public:
 		
-		Comanda mComanda;
+		Comanda cmd;
 		
-		Cliente();
+		Cliente(std::string identidade);
+        Cliente();
+        ~Cliente();
 
 		void setIdentidade(std::string id);
 		std::string getIdentidade();

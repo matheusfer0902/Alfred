@@ -3,28 +3,30 @@
 #pragma once
 
 #include "Pedido.hpp"
+#define MAX_PDD 20
 
 namespace pkt_comanda {
 
 class Comanda
 {
-	private:
+    public:
+        Comanda(Pedido* pedid); // O construtor de comanda recebe um pedido, pois toda vez que um obejto comanda for criado
+        Comanda();                        //   ele vai ser criado com um pedido.
+        ~Comanda();
 
-		Pedido cmda[MAX_PRATOS];
-		int ordem;
+        void addPedido(Pedido* pedid);
+        void setOrdem(int o);
+        int getOrdem();
 
-	public:
+        Pedido* getPedidos(int i);
+        void fecharUmItem(Pedido* pedid);
+        int setQuantidade(int quantidade, std::string prato);
 
-		Comanda();
+    protected:
 
-		void setOrdem(int o);
-		void setQuantidade(int quant, int prato);
-		int setQuantidade(int quant,std::string strPrato);
-		void setZero();
-
-		int getOrdem();
-		int getQuantidade(int prato);
-		std::string getStrPrato(int prato);
+    private:
+        Pedido* pedidos[MAX_PDD]; // A comanda é composta por pedidos
+        int ordem = 0;
 
 };
 

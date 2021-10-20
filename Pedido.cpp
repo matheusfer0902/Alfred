@@ -2,6 +2,10 @@
 
 using namespace pkt_comanda;
 	
+Pedido::Pedido(){
+    
+}
+
 Pedido::Pedido(int prato, int quantidade)
 {
     this->prato = prato;

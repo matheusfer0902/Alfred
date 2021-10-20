@@ -1,7 +1,5 @@
 #include "Comanda.hpp"
 
-#define MAX_CMD 20
-
 using namespace pkt_comanda;
 	
 Comanda::Comanda(){
@@ -11,21 +9,21 @@ Comanda::Comanda(){
 Comanda::Comanda(Pedido* pedid)
 {
     this->pedidos[0] = pedid;         // É criado o primeiro pedido da comanda
-    for(int i = 1; i < MAX_CMD; i++){
+    for(int i = 1; i < MAX_PRATOS; i++){
         this->pedidos[i] = nullptr;   // E todos os outros pedidos recebem null
     }
 }
 
 Comanda::~Comanda()
 {
-    for(int i = 0; i < MAX_CMD; i++){
+    for(int i = 0; i < MAX_PRATOS; i++){
         this->pedidos[i] = nullptr;
     }
 }
 
 void Comanda::addPedido(Pedido* pedid){
     int i;
-    for(i = 0; i < MAX_CMD; i++){
+    for(i = 0; i < MAX_PRATOS; i++){
         if(pedidos[i] == nullptr)
             break;
     }
@@ -37,25 +35,17 @@ Pedido* Comanda::getPedidos(int i){
     return this->pedidos[i];
 }
 
-void Comanda::fecharUmItem(Pedido* pedid){
-    for(int i = 0; i < MAX_CMD; i++){
-        if(pedidos[i] == pedid){
-            pedidos[i] = nullptr; // Para fechar um item é atribuido null novamente para o pedido selecionado.
+void Comanda::fecharUmItem(int prato, int quant){
+    for(int i = 0; i < MAX_PRATOS; i++){
+        if(pedidos[i]->getPrato() == prato){
+            pedidos[i]->setQuantidade(pedidos[i]->getQuantidade() - quant);
+
+            if (pedidos[i]->getQuantidade() == 0)
+            {
+                pedidos[i] = nullptr;
+            }
         }
     }
-}
-
-int Comanda::setQuantidade(int quantidade, std::string prato){
-
-    for (size_t i = 0; i < 10 ; i++)
-    {
-        if (pedidos[i]->getStrPrato().find(prato) != std::string::npos)
-        {
-            pedidos[i]->setQuantidade(quantidade);
-            return 0;
-        }
-    }
-    return 1;
 }
 
 void Comanda::setOrdem(int o){

@@ -3,7 +3,6 @@
 #pragma once
 
 #include "Pedido.hpp"
-#define MAX_PDD 20
 
 namespace pkt_comanda {
 
@@ -19,13 +18,12 @@ class Comanda
         int getOrdem();
 
         Pedido* getPedidos(int i);
-        void fecharUmItem(Pedido* pedid);
-        int setQuantidade(int quantidade, std::string prato);
+        void fecharUmItem(int prato, int quant);
 
     protected:
 
     private:
-        Pedido* pedidos[MAX_PDD]; // A comanda é composta por pedidos
+        Pedido* pedidos[MAX_PRATOS]; // A comanda é composta por pedidos
         int ordem = 0;
 
 };

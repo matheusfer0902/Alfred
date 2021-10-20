@@ -2,7 +2,7 @@
 #define PEDIDO_H
 #pragma once
 
-#define MAX_PRATOS 11
+#define MAX_PRATOS 10
 #define MAX_DESC 30
 
 #include <string>
@@ -14,7 +14,7 @@ class Pedido
 	private:
 	
 		int quantidade, prato;
-		char cardapio[MAX_PRATOS][MAX_DESC] {"Hamburguer", "Executivo", "Churrasco", "Sopa suspeita", "Cafe", "Suco", 
+		char cardapio[MAX_PRATOS][MAX_DESC] {"Executivo", "Churrasco", "Sopa suspeita", "Cafe", "Suco", 
 		"Feijoada", "Salada", "Pipoca na manteiga", "Pizza", "Sushi"};
 
 	public:

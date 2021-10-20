@@ -53,19 +53,19 @@ int main(){
         switch(opcao){ // Switch responsavel por direcionar o programa para os metodos do menu.
             case 1:
                 tPedidos++;
-                mn->opcao1(tPedidos);
+                mn->novaCMD(tPedidos);
                 break;
             case 2:
-                mn->opcao2();
+                mn->adicionaCMD();
                 break;
             case 3:
-                mn->opcao3();
+                mn->fechaItem();
                 break;
             case 4:
-                mn->opcao4();
+                mn->fechaCMD();
                 break;
             case 5:
-                mn->opcao5(tPedidos);
+                mn->delivery(tPedidos);
                 break;
         }
          Clear();

@@ -62,39 +62,60 @@ int fecharComanda(Cliente *cli, Delivery *del){       // zera comanda
     return 0;
     }
 
-    int EditaComanda(Comandas *comanda, int *mesa, int operacao)       // adiciona / cria comandas
+   int EditaComanda(Cliente* client, Delivery* deliv, int operacao)       // adiciona / cria comandas
 {
-    int prato, edicao = 0;
+    int prato, quant;
+    string idClient;
 
-    cout << "\n         Selecione \"0\" a qualquer momento para encerrar operacao.";
-    cout << "\nMesa: ";       // Pergunta para qual mesa a comanda vai ser criada, e qual prato vai ser adicionado, depois verifica se a mesa existe.
-    cin >> *mesa;
-
-        if (*mesa < 1 || *mesa > MAX_MESA)      // verificação e retorno de erro
+    std::cout << "Numero/nome da comanda: ";
+    cin >> idClient;
+    
+    while (1)
+    {
+        std::cout << "Quantidade: ";
+        cin >> quant;
+        
+        if (quant <= 0)
         {
-            return *mesa;
+            return quant;
+        }
+        
+        std::cout << "Prato: ";
+        cin >> prato;
+
+        if (prato >= 0 && prato > MAX_PRATOS)
+        {
+            return prato;
         }
 
-    printf("Numero do prato a %s", operacao > 0 ? "adicionar: " : "remover: ");
-    //cout << "Numero do prato a adicionar: ";
-    cin >> prato;
-
-    while (prato && prato <= MAX_PRATOS)    // verificação e retorno de erro
-    {
-        cout << "Quantidade: ";
-        cin >> edicao;
-
-        if (edicao < 1 || (operacao < 0 && comanda[*mesa-1].quantidade[prato-1] < edicao)){
-            return edicao;
-        }                                                    //adição do prato
-
-        comanda[*mesa-1].quantidade[prato-1] += edicao * operacao;      //prato e mesa 5 equivale, no array, ao [4]
-
-        printf("Numero do prato a %s", operacao > 0 ? "adicionar: " : "remover: ");
-        //cout << "\nNumero do prato a adicionar: ";
-        cin >> prato;
+        if (idClient[0] >= '0' && idClient[0] <= '9')       
+        {
+            int nComanda = std::stoi(idClient);
+            if (nComanda >= 1 && nComanda <= MAX_CLIENTE && (client[nComanda].mComanda.getQuantidade(prato) + quant * operacao) >= 0)
+            {
+                client[nComanda].mComanda.setQuantidade(client[nComanda].mComanda.getQuantidade(prato) + quant * operacao, prato);
+            }
+            else
+            {
+                return quant;
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < MAX_CLIENTE; i++)
+            {
+                if (deliv[i].getIdentidade().find(idClient) != std::string::npos && (deliv[i].mComanda.getQuantidade(prato) + quant * operacao) >= 0)
+                {
+                    deliv[i].mComanda.setQuantidade(deliv[i].mComanda.getQuantidade(prato) + quant * operacao, prato);
+                }
+                 else
+                {
+                    return quant;
+                }
+            }
+        }
     }
-    return prato;       // retorna prato como possivel erro
+    return 0;
 }
 
 void Menu(int opcao, int *tpedidos, int *erro, Cliente *clien, Delivery *deli)     //menu para selecao das opcoes

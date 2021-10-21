@@ -4,7 +4,7 @@ using namespace pkt_comanda;
 	
 Delivery::Delivery()
 {
-	
+	identidade = "vazio";
 }
 
 void Delivery::setContato(std::string tell){

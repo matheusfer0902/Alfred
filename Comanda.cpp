@@ -8,7 +8,7 @@ Comanda::Comanda()
 
     for (size_t i = 0; i < MAX_PRATOS ; i++)
     {
-        cmda[i].setPrato(i+1);
+        cmda[i].setPrato(i);
     }
 }
 
@@ -16,7 +16,7 @@ void Comanda::setOrdem(int o){
     ordem = o;
 }
 void Comanda::setQuantidade(int quant, int prato){
-    cmda[prato-1].setQuantidade(quant);
+    cmda[prato].setQuantidade(quant);
 }
 void Comanda::setZero(){
     for (size_t i = 0; i < MAX_PRATOS ; i++)
@@ -42,10 +42,10 @@ int Comanda::getOrdem(){
     return ordem;
 }
 int Comanda::getQuantidade(int prato){
-    return cmda[prato-1].getQuantidade();
+    return cmda[prato].getQuantidade();
 }
 std::string Comanda::getStrPrato(int prato){
-    return cmda[prato-1].getStrPrato();
+    return cmda[prato].getStrPrato();
 }
 
 

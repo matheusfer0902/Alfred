@@ -5,11 +5,6 @@
 #include "Cliente.hpp"
 #include "Delivery.hpp"
 
-<<<<<<< HEAD
-=======
-#define MAX_PRATOS 5    //Máximo de pratos no "cardapio".
-#define MAX_DESC 25    //Máximo de caracteres de cada prato.
->>>>>>> ae31f81a490403d1d064ebc3a187c9153eaa21a8
 #define MAX_CLIENTE 20
 
 using namespace std;
@@ -28,10 +23,6 @@ void Clear()
 #endif
 }
 
-<<<<<<< HEAD
-int fecharComanda(){       // zera comanda
-    
-=======
 int fecharComanda(Cliente *cli, Delivery *del){       // zera comanda
     int i;
     Cliente idClient;
@@ -70,7 +61,6 @@ int fecharComanda(Cliente *cli, Delivery *del){       // zera comanda
         cout << "Opcao invalida para: " << idClient << endl;
     }
 
->>>>>>> ae31f81a490403d1d064ebc3a187c9153eaa21a8
     return 0;
     }
 
@@ -79,27 +69,10 @@ int EditaComanda(Cliente* client, Delivery* deliv, int operacao)       // adicio
     int prato, quant;
     string idClient;
 
-<<<<<<< HEAD
     std::cout << "Numero/nome da comanda: ";
     cin >> idClient;
     
     while (1)
-=======
-    cout << "\n         Selecione \"0\" a qualquer momento para encerrar operacao.";
-    cout << "\nMesa: ";       // Pergunta para qual mesa a comanda vai ser criada, e qual prato vai ser adicionado, depois verifica se a mesa existe.
-    cin >> *mesa;
-
-        if (*mesa < 1 || *mesa > MAX_MESA)      // verificação e retorno de erro
-        {
-            return *mesa;
-        }
-
-    printf("Numero do prato a %s", operacao > 0 ? "adicionar: " : "remover: ");
-    //cout << "Numero do prato a adicionar: ";
-    cin >> prato;
-
-    while (prato && prato <= MAX_PRATOS)    // verificação e retorno de erro
->>>>>>> ae31f81a490403d1d064ebc3a187c9153eaa21a8
     {
         std::cout << "Quantidade: ";
         cin >> quant;
@@ -261,15 +234,9 @@ void ExibePedidos(Cliente *clien, Delivery *deliv)        // imprime as comandas
 
 int main(int argc, char const *argv[])
 {
-<<<<<<< HEAD
-    int opcao = 0, tpedidos = 0, erro = 0;
-    client[MAX_CLIENTE];
-    deliv[MAX_CLIENTE];
-=======
     int opcao = 0, erro = 0, tPedidos = 0;
     Cliente client[MAX_CLIENTE];
     Delivery deli[MAX_CLIENTE];
->>>>>>> ae31f81a490403d1d064ebc3a187c9153eaa21a8
 
 
     cout << "           Bem-vindo!\n";

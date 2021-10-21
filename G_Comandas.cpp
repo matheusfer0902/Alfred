@@ -1,18 +1,14 @@
 #include <iostream>
-#include <string.h>
+#include <string>
+#include "Pedido.hpp"
+#include "Comanda.hpp"
+#include "Cliente.hpp"
+#include "Delivery.hpp"
 
-#define MAX_PRATOS 5    //Máximo de pratos no "cardapio".
-#define MAX_DESC 25    //Máximo de caracteres de cada prato.
-#define MAX_MESA 10    //Máximo de mesas no restaurante.
+#define MAX_CLIENTE 20
 
 using namespace std;
-
-typedef struct      // Struct definida para os pedidos. Para primeira versão, a struct vai ter o nome dos pratos já prontos.
-{
-    int ordem = 0;  // Variável responsável por guiar a ordem de chegada.
-    char pedido[MAX_PRATOS][MAX_DESC] {"Executivo", "Feijoada", "Galinha de Capoeira", "Picado", "Rubacao"};
-    int quantidade[MAX_PRATOS] {0}; // Quantidade do mesmo prato no pedido mesa.
-} Comandas;
+using namespace pkt_comanda;
 
 void Clear()
 {
@@ -27,60 +23,65 @@ void Clear()
 #endif
 }
 
-int fecharComanda(Comandas *comanda){       // zera comanda
-    int i, mesa;
-
-    cout << "\n         Selecione \"0\" a qualquer momento para encerrar operacao.";
-    cout << "\nMesa: ";
-    cin >> mesa;
-
-    if (mesa < 1 || mesa > MAX_MESA){
-        return mesa;
-    }
-
-    // Para fechar toda a comanda eu vejo qual a comanda da mesa e a zero toda a quantidade.
-    for(i = 0; i < MAX_PRATOS; i++){
-        comanda[mesa - 1].quantidade[i] = 0;
-    }
-
-    comanda[mesa - 1].ordem = 0;    // ordem = 0 para pois nao tem mais pedidos para a mesa.
-
+int fecharComanda(){       // zera comanda
+    
     return 0;
     }
 
-    int EditaComanda(Comandas *comanda, int *mesa, int operacao)       // adiciona / cria comandas
+int EditaComanda(Cliente* client, Delivery* deliv, int operacao)       // adiciona / cria comandas
 {
-    int prato, edicao = 0;
+    int prato, quant;
+    string idClient;
 
-    cout << "\n         Selecione \"0\" a qualquer momento para encerrar operacao.";
-    cout << "\nMesa: ";       // Pergunta para qual mesa a comanda vai ser criada, e qual prato vai ser adicionado, depois verifica se a mesa existe.
-    cin >> *mesa;
-
-        if (*mesa < 1 || *mesa > MAX_MESA)      // verificação e retorno de erro
+    std::cout << "Numero/nome da comanda: ";
+    cin >> idClient;
+    
+    while (1)
+    {
+        std::cout << "Quantidade: ";
+        cin >> quant;
+        
+        if (quant <= 0)
         {
-            return *mesa;
+            return quant;
+        }
+        
+        std::cout << "Prato: ";
+        cin >> prato;
+
+        if (prato >= 0 && prato > MAX_PRATOS)
+        {
+            return prato;
         }
 
-    printf("Numero do prato a %s", operacao > 0 ? "adicionar: " : "remover: ");
-    //cout << "Numero do prato a adicionar: ";
-    cin >> prato;
-    
-    while (prato && prato <= MAX_PRATOS)    // verificação e retorno de erro
-    {
-        cout << "Quantidade: ";
-        cin >> edicao;
-
-        if (edicao < 1 || (operacao < 0 && comanda[*mesa-1].quantidade[prato-1] < edicao)){
-            return edicao;
-        }                                                    //adição do prato
-
-        comanda[*mesa-1].quantidade[prato-1] += edicao * operacao;      //prato e mesa 5 equivale, no array, ao [4]
-
-        printf("Numero do prato a %s", operacao > 0 ? "adicionar: " : "remover: ");
-        //cout << "\nNumero do prato a adicionar: ";
-        cin >> prato;
+        if (idClient[0] >= '0' && idClient[0] <= '9')       
+        {
+            int nComanda = std::stoi(idClient);
+            if (nComanda >= 1 && nComanda <= MAX_CLIENTE && (client[nComanda].mComanda.getQuantidade(prato) + quant * operacao) >= 0)
+            {
+                client[nComanda].mComanda.setQuantidade(client[nComanda].mComanda.getQuantidade(prato) + quant * operacao, prato);
+            }
+            else
+            {
+                return quant;
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < MAX_CLIENTE; i++)
+            {
+                if (deliv[i].getIdentidade().find(idClient) != std::string::npos && (deliv[i].mComanda.getQuantidade(prato) + quant * operacao) >= 0)
+                {
+                    deliv[i].mComanda.setQuantidade(deliv[i].mComanda.getQuantidade(prato) + quant * operacao, prato);
+                }
+                 else
+                {
+                    return quant;
+                }
+            }
+        }
     }
-    return prato;       // retorna prato como possivel erro
+    return 0;
 }
 
 void Menu(int opcao, Comandas *comanda, int *tpedidos, int *erro)     //menu para selecao das opcoes
@@ -158,7 +159,8 @@ void ExibePedidos(Comandas *comanda)        // imprime as comandas em ordem
 int main(int argc, char const *argv[])
 {
     int opcao = 0, tpedidos = 0, erro = 0;
-    Comandas comanda[MAX_MESA];
+    client[MAX_CLIENTE];
+    deliv[MAX_CLIENTE];
 
     // A variável "opcao" guarda o valor inteiro para ser usado no switch case.
     // A variável tpedidos guarda o total de pedidos no dia e orienta a ordem

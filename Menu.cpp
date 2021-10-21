@@ -3,8 +3,7 @@
 #include "Cliente.hpp"
 #include "Delivery.hpp"
 #include "Pedido.hpp"
-#define MAX_CMD 20
-#define MAX_PRATO 11
+#include <string>
 
 using namespace std;
 using namespace pkt_comanda;
@@ -12,8 +11,11 @@ using namespace pkt_comanda;
 Menu::Menu() /* No construtor no menu, é especificado a inicialização das comandas recebendo "nullptr", ou seja,
                 comanda vazias. */
 {
-    for(int i = 0; i < MAX_CMD; i++){
+    for(int i = 0; i < MAX_CLIENTE; i++){
         this->client[i] = nullptr;
+    }
+    for(int i = 0; i < MAX_CLIENTE; i++){
+        this->delivG[i] = nullptr;
     }
 }
 
@@ -22,44 +24,42 @@ Menu::~Menu()
     //dtor
 }
 
-int Menu::opcao1(int tPedidos){
-    int prato, quantidade, i;
-    std::string identidade;  /* Na opção 1, é criada uma nova comanda, nesse metodo é perguntado qual o prato e a
-                                 quantidade de pratos desejada. Logo depois, é criado o pedido e a comanda atual, que é
-                                 salva na primeira comanda que recebe "nullptr", ou seja, a primeira comanda vazia. */
+void Menu::novaCMD(int tPedidos){     // Na opção 1, é criada uma nova comanda, nesse metodo é perguntado qual o prato e a
+    int prato, quantidade, i;       // quantidade de pratos desejada. Logo depois, é criado o pedido e a comanda atual, que é
+    std::string identidade;         // salva na primeira comanda que recebe "nullptr", ou seja, a primeira comanda vazia.
 
     cout << "Digite o numero do prato desejado: " << endl;
     cin >> prato;
-    if(prato <= 0 || prato > MAX_PRATO){
+    if(prato <= 0 || prato > MAX_PRATOS){
         setErro(prato);
-        return 0;
+        return;
     }
     cout << "Quantidade do prato: " << endl;
     cin >> quantidade;
     if(quantidade <= 0){
         setErro(quantidade);
-        return 0;
+        return;
     }
-    cout << "Id do Cliente: " << endl;
+
+    cout << "Mesa: " << endl;
     cin >> identidade;
 
-
     Pedido* pdd = new Pedido();
-    pdd->setPrato(prato);
+    pdd->setPrato(prato-1);
     pdd->setQuantidade(quantidade);
     Cliente* clie = new Cliente(identidade);
 
-    for(i = 0; i < MAX_CMD; i++){
+    for(i = 0; i < MAX_CLIENTE; i++){
         if(client[i] == nullptr){
             this->client[i] = clie;
             break;
         }
     }
-
-    return 0;
+    delete clie;
+    delete pdd;
 }
 
-int Menu::opcao2(){        /* Na opção 2, é adicionado um novo pedido em uma comanda que ja existe. A primeira coisa é
+void Menu::adicionaCMD(){        /* Na opção 2, é adicionado um novo pedido em uma comanda que ja existe. A primeira coisa é
                                perguntar em qual comanda vai ser adicionado  o pedido, onde se a comanda for invalida, é
                                informado que a opção foi invalida. */
     int numeroComanda;
@@ -74,87 +74,112 @@ int Menu::opcao2(){        /* Na opção 2, é adicionado um novo pedido em uma 
         cout << "Quantidade do prato: " << endl;
         cin >> quantidade;
 
-        Pedido* pdd = new Pedido(prato, quantidade); // Se a opção da comanda for valida, é realizado um novo pedido
-                                                     // Dentro da comanda "numeroComanda".
-        client[numeroComanda]->addPedido(pdd);
+        Pedido* pdd = new Pedido(prato-1, quantidade); // Se a opção da comanda for valida, é realizado um novo pedido
+                                                       // Dentro da comanda "numeroComanda".
+        client[numeroComanda]->cmd.addPedido(pdd);
+        delete pdd;
     } else {
         cout << "op invalida" << endl;
     }
-    return 0;
 }
 
-int Menu::opcao3(){
-    int numeroComanda, item;
+void Menu::fechaItem(){
+    std::string idClient;
+    int quant, prato;
 
-    cout << "Numero da comanda para fechar o pedido: " << endl;
-    cin >> numeroComanda;
+    cout << "Numero/nome da comanda a alterar: " << endl;
+    cin >> idClient;
+    cout << "Prato a retirar: " << endl;
+    cin >> prato;
+    cout << "Quantidade a retirar: " << endl;
+    cin >> quant;
 
-    cout << "Numero do item que deseja fechar: " << endl;
-    cin >> item;
-
-    if(client[numeroComanda] != nullptr || client[numeroComanda] < 0){
-        if(client[numeroComanda]->getPedidos(item) != nullptr || client[numeroComanda]->getPedidos(item) < 0){                           /* Na opção 3, é perguntado novamente
-                                                                                          qual a comanda desejada e o item(pedido)
-                                                                                          para ser retirado, onde se as opções forem validas o
-                                                                                          metodo fecharUmItem vai ser chamado */
-            client[numeroComanda]->fecharUmItem(cmd[numeroComanda]->getPedidos(item));
-        } else {
-            cout << "Pedido invalido" << endl;
+    if (idClient[0] >= '0' && idClient[0] <= '9')       
+    {
+        int nComanda = std::stoi(idClient);
+        if (nComanda >= 1 && nComanda <= MAX_CLIENTE)
+        {
+            client[nComanda]->cmd.fecharUmItem(prato-1, quant);
         }
-    } else {
-        cout << "Comanda invalida" << endl;
     }
-
-    return 0;
+    else
+    {
+        for (size_t i = 0; i < MAX_CLIENTE; i++)
+        {
+            if (delivG[i]->getIdentidade().find(idClient) != std::string::npos)
+            {
+                delivG[i]->cmd.fecharUmItem(prato-1, quant);
+            }
+        }
+    }
 }
-int Menu::opcao4(){
-    int numeroComanda;
+void Menu::fechaCMD(){
+    std::string idClient;
 
     cout << "Numero da comanda para fechar: " << endl;
-    cin >> numeroComanda;
+    cin >> idClient;
 
-    if(numeroComanda >= 0 && numeroComanda <= MAX_CMD){ // Na opção 4, a comanda volta a receber "nullptr" ja que ela foi fechada.
-        client[numeroComanda] = nullptr;
+    if (idClient[0] >= '1' && idClient[0] <= '9')
+    {
+        int nComanda = std::stoi(idClient);
+        if (nComanda >= 0 && nComanda <= MAX_CLIENTE)
+        {
+            for(size_t j = 0; j < MAX_PRATOS; j++)
+            {
+                Pedido* pddAUX = client[nComanda]->cmd.getPedidos(j);
+                client[nComanda]->cmd.fecharUmItem(pddAUX->getPrato(), pddAUX->getQuantidade());
+                delete pddAUX;
+            }
+            client[nComanda]->cmd.setOrdem(0);
+            client[nComanda]->setIdentidade(nullptr);
+        }
     }
-
-    client[numeroComanda]->setOrdem(0);
-
-    return 0;
+    else
+    {
+        for (size_t i = 0; i < MAX_CLIENTE; i++)
+        {
+            if(delivG[i]->getIdentidade().find(idClient) != std::string::npos)
+            {
+                for(size_t j = 0; j < MAX_PRATOS; j++)
+                {
+                    Pedido* pddAUX = delivG[i]->cmd.getPedidos(j);
+                    delivG[i]->cmd.fecharUmItem(pddAUX->getPrato(), pddAUX->getQuantidade());
+                    delete pddAUX;
+                }
+                delivG[i]->setContato(nullptr);
+                delivG[i]->setEndereco(nullptr);
+                delivG[i]->setIdentidade(nullptr);
+                delivG[i]->cmd.setOrdem(0);
+                break;
+            }
+        }
+    }
 }
-int Menu::opcao5(int tPedidos){
-    int prato, quantidade, i;
-    string endereco, contato;
 
-    cout << "Digite o numero do prato desejado: " << endl;
-    cin >> prato;
-    if(prato <= 0 || prato > 10){
-        setErro(prato);
-        return 0;
-    }
-    cout << "Quantidade do prato: " << endl;
-    cin >> quantidade;
-    if(quantidade <= 0){
-        setErro(quantidade);
-        return 0;
-    }
+void Menu::delivery(int tPedidos){
+    int prato, quantidade, i;
+    string endereco, contato, nome;
+
     getchar();
+    cout << "Nome do cliente: " << endl;
+    getline(cin, nome);
     cout << "Endereco do pedido: " << endl;
     getline(cin, endereco);
     cout << "Contato do cliente: " << endl;
     cin >> contato;
 
-    /* Na opção 5, apenas é requisitado os atributos necessarios para chamar o delivery. */
+    Delivery* deli = new Delivery(endereco, contato);
+    deli->setIdentidade(nome);
 
-    Pedido* pdd[10] = new Pedido(prato, quantidade);
-    for(i = 0; i < 10; i++){
-        cout << "Digite 0 para finalizar" << endl;
-
-        pdd[i]->setPrato(prato);
-        pdd[i]->setQuantidade(quantidade);
-
+    cout << "\nPara sair, digite 0\n";
+    
+    Pedido* pddAUX[MAX_PRATOS];
+    
+    for (size_t i = 0; i < MAX_PRATOS; i++)
+    {
         cout << "Digite o numero do prato desejado: " << endl;
         cin >> prato;
-        if(prato <= 0 || prato > 10){
+        if(prato <= 0 || prato > MAX_PRATOS){
             setErro(prato);
             break;
         }
@@ -164,11 +189,19 @@ int Menu::opcao5(int tPedidos){
             setErro(quantidade);
             break;
         }
-        Delivery* deli = new Delivery(pdd[i], endereco, contato);
+        pddAUX[i]->setPrato(prato-1);
+        pddAUX[i]->setQuantidade(quantidade);
     }
+    deli->cmd.addPedido(*pddAUX);
+    deli->cmd.setOrdem(tPedidos);
 
-
-    return 0;
+    for(i = 0; i < MAX_CLIENTE; i++){
+        if(client[i] == nullptr){
+            this->delivG[i] = deli;
+            break;
+        }
+    }
+    delete deli;
 }
 
 void Menu::setErro(int e){
@@ -179,35 +212,68 @@ int Menu::getErro(){
     return erro;
 }
 
-/*void Menu::exibePedidos(){
+void Menu::exibePedidos(){
     int primeiro = 10000, imprimiu = 1;
-    for (size_t i = 0; i < MAX_MESA; i++)     // Define a mesa com menor ordem e maior prioridade
+    for (size_t i = 0; i < MAX_CLIENTE && client[i] != nullptr; i++)     // Define a mesa com menor ordem e maior prioridade
     {
-        if (comanda[i].ordem != 0 && primeiro > comanda[i].ordem)  // primeira iteração para permitir comparações
+        int ordemAUX = client[i]->cmd.getOrdem();
+        if (ordemAUX != 0 && primeiro > ordemAUX)  // primeira iteração para permitir comparações
         {
-            primeiro = comanda[i].ordem;
+            primeiro = ordemAUX;
+        }
+        else
+        ordemAUX = delivG[i]->cmd.getOrdem();
+        if (ordemAUX != 0 && primeiro > ordemAUX)
+        {
+            primeiro = ordemAUX;
         }
     }
     cout << "\n-----------------------------------------------------\n";
     while (imprimiu)    //confere se a impresão de todas as comandas está completa
     {
         imprimiu = 0;
-        for (size_t i = 0; i < MAX_MESA ; i++)  //procura as mesas na ordem correta e imprime-as
+        for (size_t i = 0; i < MAX_CLIENTE && client[i] != nullptr; i++)  //procura as mesas na ordem correta e imprime-as
         {
-            if (comanda[i].ordem == primeiro)
+            if (client[i]->cmd.getOrdem() == primeiro)
             {
                 primeiro++;
                 imprimiu = 1;
-                cout << "\nPedido N.: " << comanda[i].ordem << " ----- Mesa: " << i+1 << endl;  // cabeçalho
-                for (size_t j = 0; j < MAX_PRATOS; j++)     //imprime pedidos da mesa
+                cout << "\nPedido N.: " << client[i]->cmd.getOrdem() << " ----- Mesa: " << client[i]->getIdentidade() << endl;  // cabeçalho
+                for (size_t j = 0; j < MAX_PRATOS && client[i]->cmd.getPedidos(j) != nullptr; j++)     //imprime pedidos da mesa
                 {
-                    if (comanda[i].quantidade[j] > 0)
+                    Pedido* pddAUX = client[i]->cmd.getPedidos(j);
+                    if (pddAUX->getQuantidade() > 0)
                     {
-                        cout << "        -> " << comanda[i].quantidade[j] << " " << comanda[i].pedido[j] << endl;
+                        cout << "        -> " << pddAUX->getQuantidade() << " " << pddAUX->getStrPrato() << endl;
                     }
+                    delete pddAUX;
+                }
+            }
+
+            if (delivG[i]->cmd.getOrdem() == primeiro)
+            {
+                primeiro++;
+                imprimiu = 1;
+                cout << "\nPedido N.: " << delivG[i]->cmd.getOrdem() << " ----- Nome: " << delivG[i]->getIdentidade() << endl;  // cabeçalho
+                for (size_t j = 0; j < MAX_PRATOS && delivG[i]->cmd.getPedidos(j) != nullptr ; j++)     //imprime pedidos da mesa
+                {
+                    Pedido* pddAUX = delivG[i]->cmd.getPedidos(j);
+                    if (pddAUX->getQuantidade() > 0)
+                    {
+                        cout << "        -> " << pddAUX->getQuantidade() << " " << pddAUX->getStrPrato() << endl;
+                    }
+                    delete pddAUX;
                 }
             }
         }
     }
     cout << "\n-----------------------------------------------------\n";
-} */
+}
+
+void Menu::zeraClientes(){
+    for (size_t i = 0; i < MAX_CLIENTE; i++)
+    {
+        delete client[i];
+        delete delivG[i];
+    }
+}

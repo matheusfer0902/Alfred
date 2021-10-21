@@ -10,13 +10,13 @@ Delivery::Delivery(std::string endereco, std::string contato) // Um pedido vai s
 
 Delivery::Delivery()
 {
-     endereco = nullptr;
-     contato = nullptr;
+    endereco = nullptr;
+    contato = nullptr;
 }
 
 Delivery::~Delivery()
 {
-    //dtor
+
 }
 
 std::string Delivery::getEndereco(){

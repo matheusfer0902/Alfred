@@ -16,9 +16,7 @@ Comanda::Comanda(Pedido* pedid)
 
 Comanda::~Comanda()
 {
-    for(int i = 0; i < MAX_PRATOS; i++){
-        this->pedidos[i] = nullptr;
-    }
+    
 }
 
 void Comanda::addPedido(Pedido* pedid){
@@ -54,5 +52,3 @@ void Comanda::setOrdem(int o){
 int Comanda::getOrdem(){
     return ordem;
 }
-
-

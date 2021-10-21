@@ -15,22 +15,22 @@ class Menu
         Menu();
         ~Menu();
 
-        int opcao1(int tPedidos);
-        int opcao2();
-        int opcao3();
-        int opcao4();
-        int opcao5(int tPedidos);
-        int opcao6();
+        void novaCMD(int tPedidos);
+        void adicionaCMD();
+        void fechaItem();
+        void fechaCMD();
+        void delivery(int tPedidos);
+        void exibePedidos();
+        void zeraClientes();
 
         void setErro(int e);
         int getErro();
-
-        //void exibePedidos();
 
     protected:
 
     private:
         Cliente* client[MAX_CLIENTE];
+        Delivery* delivG[MAX_CLIENTE];
         int erro = 0;                // A classe recebe uma comanda para realização dos metodos.
 
 };

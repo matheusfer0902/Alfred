@@ -22,7 +22,6 @@ class Cliente // Os dados dos clientes são necessarios para o delivery, já que
 
 		void setIdentidade(std::string id);
 		std::string getIdentidade();
-
 };
 
 };

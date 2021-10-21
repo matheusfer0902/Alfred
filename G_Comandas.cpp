@@ -6,6 +6,12 @@
 #include "Cliente.hpp"
 #include "Menu.hpp"
 
+#include "pedido.cpp"
+#include "Comanda.cpp"
+#include "Cliente.cpp"
+#include "Delivery.cpp"
+#include "Menu.cpp"
+
 using namespace std;
 using namespace pkt_comanda;
 
@@ -46,10 +52,6 @@ int main(){
 
         getchar();
 
-        if(opcao == 6){
-            break;
-        }
-
         switch(opcao){ // Switch responsavel por direcionar o programa para os metodos do menu.
             case 1:
                 tPedidos++;
@@ -67,9 +69,21 @@ int main(){
             case 5:
                 mn->delivery(tPedidos);
                 break;
+            case 6:
+                mn->zeraClientes();
+                break;
+            default:
+                cout << "\nOpcao " << opcao << " invalida\n";
         }
-         Clear();
 
+        if (opcao == 6)
+        {
+            break;
+        }
+        
+        Clear();
+
+        mn->exibePedidos();
     }
     return 0;
 }

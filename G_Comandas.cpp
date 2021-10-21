@@ -3,11 +3,6 @@
 #include "Cliente.hpp"
 #include "Delivery.hpp"
 
-#include "Pedido.cpp"
-#include "Comanda.cpp"
-#include "Cliente.cpp"
-#include "Delivery.cpp"
-
 #define MAX_CLIENTE 20
 
 using namespace std;
@@ -26,7 +21,7 @@ void Clear()
 #endif
 }
 
-int cDelivery(Delivery *del, int *Tpedidos)
+int cDelivery(Delivery *del, int *tpedidos)
 {
     string ende, cont, id;
     size_t vaz;
@@ -61,6 +56,7 @@ int cDelivery(Delivery *del, int *Tpedidos)
         if (del[i].getIdentidade().find("vazio") != string::npos)
         {
             vaz = i;
+            break;
         }   
     }
     del[vaz].setContato(cont);
@@ -68,13 +64,12 @@ int cDelivery(Delivery *del, int *Tpedidos)
     del[vaz].setIdentidade(id);
     del[vaz].mComanda.setQuantidade(quant, prato);
 
-    *Tpedidos += 1;
-    del[vaz].mComanda.setOrdem(*Tpedidos);
-    
+    *tpedidos += 1;
+    del[vaz].mComanda.setOrdem(*tpedidos);
     return 0;
 }
 
-int fecharComanda(Cliente *cli, Delivery *del){       // zera comanda
+int fecharComanda(Cliente *cli, Delivery *del){
     string idClient;
 
     cout << "           \nDigite 0 para encerrar\n";
@@ -103,7 +98,7 @@ int fecharComanda(Cliente *cli, Delivery *del){       // zera comanda
     return 0;
 }
 
-int EditaComanda(Cliente* client, Delivery* deliv, int operacao, int* NumCli)      // adiciona / cria comandas
+int EditaComanda(Cliente* client, Delivery* deliv, int operacao, int* NumCli) 
 {
     int prato, quant;
     string idClient;
@@ -164,14 +159,12 @@ int EditaComanda(Cliente* client, Delivery* deliv, int operacao, int* NumCli)   
     return 0;
 }
 
-void Menu(int opcao, int *tpedidos, int *erro, Cliente *clien, Delivery *deli)     //menu para selecao das opcoes
+void Menu(int opcao, int *tpedidos, int *erro, Cliente *clien, Delivery *deli)     
 {
     int NumCli;
 
     switch (opcao)
     {
-        /* Na primeira opção, vai ser feita uma nova comanda, atraves da função "EditaComanda".
-                Além disso, o número total de pedidos é incrementado*/
     case 1:
         *erro = EditaComanda(clien, deli, 1, &NumCli);
         if(*erro == 0){
@@ -180,11 +173,11 @@ void Menu(int opcao, int *tpedidos, int *erro, Cliente *clien, Delivery *deli)  
         }
         break;
 
-    case 2:     // Usa a mesma função de criação da comanda para adicionar um novo prato.
+    case 2:    
         *erro = EditaComanda(clien, deli, 1, &NumCli);
         break;
 
-    case 3:     // diminui um pedido
+    case 3:     
         *erro = EditaComanda(clien, deli, -1, &NumCli);
         break;
 
@@ -199,23 +192,23 @@ void Menu(int opcao, int *tpedidos, int *erro, Cliente *clien, Delivery *deli)  
         }
         break;
 
-    default:   // retorno de valores inesperados
+    default:  
         *erro = opcao;
         break;
     }
 }
 
-void ExibePedidos(Cliente *clien, Delivery *deliv)      // imprime as comandas em ordem
+void ExibePedidos(Cliente *clien, Delivery *deliv)     
 {
     int primeiro = 10000, imprimiu = 1;
 
-    for (size_t i = 0; i < MAX_CLIENTE; i++)     // Define a mesa com menor ordem e maior prioridade
+    for (size_t i = 0; i < MAX_CLIENTE; i++)     
     {
-        if (clien[i].mComanda.getOrdem() != 0 && primeiro > clien[i].mComanda.getOrdem())  // primeira iteração para permitir comparações
+        if (clien[i].mComanda.getOrdem() != 0 && primeiro > clien[i].mComanda.getOrdem())  
         {
             primeiro = clien[i].mComanda.getOrdem();
         }
-        if (deliv[i].mComanda.getOrdem() != 0 && primeiro > deliv[i].mComanda.getOrdem())  // primeira iteração para permitir comparações
+        if (deliv[i].mComanda.getOrdem() != 0 && primeiro > deliv[i].mComanda.getOrdem())  
         {
             primeiro = deliv[i].mComanda.getOrdem();
         }
@@ -223,19 +216,19 @@ void ExibePedidos(Cliente *clien, Delivery *deliv)      // imprime as comandas e
 
     cout << "\n-----------------------------------------------------\n";
 
-    while (imprimiu)    //confere se a impresão de todas as comandas está completa
+    while (imprimiu)   
     {
         imprimiu = 0;
-        for (size_t i = 0; i < MAX_CLIENTE ; i++)  //procura as mesas na ordem correta e imprime-as
+        for (size_t i = 0; i < MAX_CLIENTE ; i++)  
         {
             if (clien[i].mComanda.getOrdem() == primeiro)
             {
                 primeiro++;
                 imprimiu = 1;
 
-                cout << "\nPedido N.: " << clien[i].mComanda.getOrdem() << " ----- Mesa: " << clien[i].getIdentidade() << endl;  // cabeçalho
+                cout << "\nPedido N.: " << clien[i].mComanda.getOrdem() << " ----- Mesa: " << clien[i].getIdentidade() << endl; 
 
-                for (size_t j = 0; j < MAX_PRATOS; j++)     //imprime pedidos da mesa
+                for (size_t j = 0; j < MAX_PRATOS; j++)     
                 {
                     if (clien[i].mComanda.getQuantidade(j) > 0)
                     {
@@ -243,14 +236,14 @@ void ExibePedidos(Cliente *clien, Delivery *deliv)      // imprime as comandas e
                     }
                 }
             }
-            if (deliv[i].mComanda.getOrdem() == primeiro)
+            else if (deliv[i].mComanda.getOrdem() == primeiro)
             {
                 primeiro++;
                 imprimiu = 1;
 
-                cout << "\nPedido N.: " << deliv[i].mComanda.getOrdem() << " ----- Delivery: " << deliv[i].getIdentidade() << endl;  // cabeçalho
+                cout << "\nPedido N.: " << deliv[i].mComanda.getOrdem() << " ----- Delivery: " << deliv[i].getIdentidade() << endl; 
 
-                for (size_t j = 0; j < MAX_PRATOS; j++)     //imprime pedidos da mesa
+                for (size_t j = 0; j < MAX_PRATOS; j++)    
                 {
                     if (deliv[i].mComanda.getQuantidade(j) > 0)
                     {
@@ -282,7 +275,7 @@ int main(int argc, char const *argv[])
         << "5 - Novo delivery\n"
         << "6 - Sair\n";
 
-        if (erro)       // verifica o retorno de erro de todas as funções
+        if (erro) 
         {
             cout << "\n         Valor " << erro << " invalido!\n";
             erro = 0;
@@ -296,7 +289,7 @@ int main(int argc, char const *argv[])
 
         Menu(opcao, &tPedidos, &erro, client, deli);
 
-        Clear();        // mantem limpo o terminal padrão do Windows / Linux / Apple e evita poluição
+        Clear(); 
 
         ExibePedidos(client, deli);
     }

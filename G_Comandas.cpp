@@ -1,10 +1,8 @@
 #include <iostream>
-#include <string>
-#include "Pedido.hpp"
-#include "Comanda.hpp"
-#include "Cliente.hpp"
-#include "Delivery.hpp"
+#include <string.h>
 
+#define MAX_PRATOS 5    //Máximo de pratos no "cardapio".
+#define MAX_DESC 25    //Máximo de caracteres de cada prato.
 #define MAX_CLIENTE 20
 
 using namespace std;

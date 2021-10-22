@@ -4,7 +4,7 @@ using namespace pkt_comanda;
 	
 Cliente::Cliente()
 {
-
+    identidade = "vazio";
 }
 	
 void Cliente::setIdentidade(std::string id){

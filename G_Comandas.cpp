@@ -3,12 +3,17 @@
 #include "Cliente.hpp"
 #include "Delivery.hpp"
 
+#include "Pedido.cpp"
+#include "Comanda.cpp"
+#include "Cliente.cpp"
+#include "Delivery.cpp"
+
 #define MAX_CLIENTE 20
 
 using namespace std;
 using namespace pkt_comanda;
 
-void Clear()
+void Clear()    // limpa a tela do prompt de comando de acordo com o sistema operacional
 {
 #if defined _WIN32
     system("cls");
@@ -21,7 +26,7 @@ void Clear()
 #endif
 }
 
-int cDelivery(Delivery *del, int *tpedidos)
+int cDelivery(Delivery *del, int *tpedidos)     // inicia um objeto Delivery, bem como seus atributos
 {
     string ende, cont, id;
     size_t vaz;
@@ -46,12 +51,12 @@ int cDelivery(Delivery *del, int *tpedidos)
     cout << "Prato: ";
     cin >> prato;
 
-    if (prato >= 0 && prato > MAX_PRATOS)
+    if (prato <= 0 && prato > MAX_PRATOS)
         {
             return prato;
         }
 
-    for (size_t i = 0; i < MAX_CLIENTE; i++)
+    for (size_t i = 0; i < MAX_CLIENTE; i++)    // procura um objeto "vazio" para iniciar o novo Delivery
     {
         if (del[i].getIdentidade().find("vazio") != string::npos)
         {
@@ -59,38 +64,40 @@ int cDelivery(Delivery *del, int *tpedidos)
             break;
         }   
     }
+    *tpedidos += 1;
     del[vaz].setContato(cont);
     del[vaz].setEndereco(ende);
     del[vaz].setIdentidade(id);
-    del[vaz].mComanda.setQuantidade(quant, prato);
-
-    *tpedidos += 1;
+    del[vaz].mComanda.setQuantidade(quant, prato-1);
     del[vaz].mComanda.setOrdem(*tpedidos);
+
     return 0;
 }
 
-int fecharComanda(Cliente *cli, Delivery *del){
+int fecharComanda(Cliente *cli, Delivery *del){     // zera um Cliente/Delivery, junto de seus atributos
     string idClient;
 
     cout << "           \nDigite 0 para encerrar\n";
     cout << "Mesa/nome do Cliente: " << endl;
     cin >> idClient;
 
-    if (idClient[0] >= '0' && idClient[0] <= '9')
+    if (idClient[0] >= '0' && idClient[0] <= '9')           // identifica se é Cliente pelo primeiro caractere de sua identidade. Sendo número, é cliente (corresponde à mesa)
     {
-        int nComanda = std::stoi(idClient);
+        int nComanda = std::stoi(idClient);                 // utiliza a mesa como referencia para encontrar a posição correspondente no array do cliente
         if (nComanda >= 1 && nComanda <= MAX_CLIENTE)
         {
-            cli[nComanda].mComanda.setZero();
+            cli[nComanda-1].mComanda.setZero();
+            cli[nComanda-1].setIdentidade("vazio");
         }
     }
-    else
+    else                                                    // nao sendo número, é um Delivery com um nome
     {
-        for (size_t i = 0; i < MAX_CLIENTE; i++)
+        for (size_t i = 0; i < MAX_CLIENTE; i++)            // procura nos Delivery alguém com o nome descrito
         {
             if (del[i].getIdentidade().find(idClient) != std::string::npos)
             {
                 del[i].mComanda.setZero();
+                del[i].setIdentidade("vazio");
                 break;
             }
         }
@@ -98,12 +105,13 @@ int fecharComanda(Cliente *cli, Delivery *del){
     return 0;
 }
 
-int EditaComanda(Cliente* client, Delivery* deliv, int operacao, int* NumCli) 
+int EditaComanda(Cliente* client, Delivery* deliv, int operacao, int* NumCli)   //adiciona ou remove pedidos das comandas de acordo com a operação
 {
     int prato, quant;
     string idClient;
+    bool encontrou = false;                                 // flag para erro relativo a identidade no caso de um nome
 
-    cout << "           \nDigite 0 para encerrar\n";
+    cout << "\n           Digite 0 para encerrar\n";
     std::cout << "\nMesa/nome do Cliente: ";
     cin >> idClient;
     
@@ -120,52 +128,65 @@ int EditaComanda(Cliente* client, Delivery* deliv, int operacao, int* NumCli)
         std::cout << "Prato: ";
         cin >> prato;
 
-        if (prato >= 0 && prato > MAX_PRATOS)
+        if (prato <= 0 && prato > MAX_PRATOS)
         {
             return prato;
         }
 
-        if (idClient[0] >= '0' && idClient[0] <= '9')       
-        {
-            int nComanda = std::stoi(idClient);
-            if (nComanda >= 1 && nComanda <= MAX_CLIENTE && (client[nComanda].mComanda.getQuantidade(prato-1) + quant * operacao) >= 0)
+        if (idClient[0] >= '0' && idClient[0] <= '9')       // identifica um Cliente por ter um número de mesa com identidade
+        {   
+            int nMesa = std::stoi(idClient);
+            if (nMesa >= 1 && nMesa <= MAX_CLIENTE)         // avalia se a mesa do cliente existe
             {
-                client[nComanda].mComanda.setQuantidade(client[nComanda].mComanda.getQuantidade(prato-1) + quant * operacao, prato-1);
-                client[nComanda].setIdentidade(idClient);
-                *NumCli = nComanda;
+                if (client[nMesa-1].mComanda.getQuantidade(prato-1) + quant * operacao >= 0)    // avalia se a quantidade a retirar é maior que a atual
+                {
+                    client[nMesa-1].mComanda.setQuantidade(client[nMesa-1].mComanda.getQuantidade(prato-1) + quant * operacao, prato-1);    // com base na quantidade atual, soma ou subtrai a quantidade desejada
+                    client[nMesa-1].setIdentidade(idClient);
+                    *NumCli = nMesa-1;
+                }
+                else{
+                    return quant;
+                }
             }
-            else
-            {
-                return quant;
+            else{
+                return nMesa;
             }
         }
         else
         {
-            for (size_t i = 0; i < MAX_CLIENTE; i++)
+            for (size_t i = 0; i < MAX_CLIENTE; i++)        // no caso de um Delivery, busca no array o nome digitado
             {
-                if (deliv[i].getIdentidade().find(idClient) != std::string::npos && (deliv[i].mComanda.getQuantidade(prato-1) + quant * operacao) >= 0)
+                if (deliv[i].getIdentidade().find(idClient) != std::string::npos)
                 {
-                    deliv[i].mComanda.setQuantidade(deliv[i].mComanda.getQuantidade(prato-1) + quant * operacao, prato-1);
-                    *NumCli = i;
-                    break;
-                }
-                 else
-                {
-                    return quant;
+                    encontrou = true;
+
+                    if (deliv[i].mComanda.getQuantidade(prato-1) + quant * operacao >= 0)       // avalia quantidade digitada
+                    {
+                        deliv[i].mComanda.setQuantidade(deliv[i].mComanda.getQuantidade(prato-1) + quant * operacao, prato-1);
+                        *NumCli = i;
+                        break;
+                    }
+                    else{
+                        return quant;
+                    }
                 }
             }
+            if (!encontrou){
+                return -101;
+            }
+            
         }
     }
     return 0;
 }
 
-void Menu(int opcao, int *tpedidos, int *erro, Cliente *clien, Delivery *deli)     
+void Menu(int opcao, int *tpedidos, int *erro, Cliente *clien, Delivery *deli)  // retorna para a main os erros das funções
 {
     int NumCli;
 
     switch (opcao)
     {
-    case 1:
+    case 1:                                             // inicia um novo cliente, seus atributos, e atribui uma ordem conforme tpedidos incrementa
         *erro = EditaComanda(clien, deli, 1, &NumCli);
         if(*erro == 0){
             *tpedidos += 1;
@@ -173,23 +194,20 @@ void Menu(int opcao, int *tpedidos, int *erro, Cliente *clien, Delivery *deli)
         }
         break;
 
-    case 2:    
+    case 2:                                             // adiciona à comanda de um cliente um ou mais pedidos
         *erro = EditaComanda(clien, deli, 1, &NumCli);
         break;
 
-    case 3:     
+    case 3:                                             // retira da comanda de um cliente/delivery um ou mais pedidos
         *erro = EditaComanda(clien, deli, -1, &NumCli);
         break;
 
-    case 4:
+    case 4:                                             // zera os atributos de um cliente/delivery, além da ordem
         *erro = fecharComanda(clien, deli);
         break;
 
-    case 5:
+    case 5:                                             // inicia um novo Delivery, seus atributos, e uma ordem também conforme tpedidos incrementa
         *erro = cDelivery(deli, tpedidos);
-        if(*erro == 0){
-            *tpedidos += 1;
-        }
         break;
 
     default:  
@@ -198,11 +216,12 @@ void Menu(int opcao, int *tpedidos, int *erro, Cliente *clien, Delivery *deli)
     }
 }
 
-void ExibePedidos(Cliente *clien, Delivery *deliv)     
+void ExibePedidos(Cliente *clien, Delivery *deliv)     // exibe os pedidos em ordem crescente (ordem de chegada)
 {
-    int primeiro = 10000, imprimiu = 1;
+    int primeiro = 10000;           // responsável por orientar a exibição com número de ordem correta
+    bool imprimiu = 1;              // manter o método da bolha até que não haja nada a ser impresso
 
-    for (size_t i = 0; i < MAX_CLIENTE; i++)     
+    for (size_t i = 0; i < MAX_CLIENTE; i++)                // procura o Cliente/Delivery com menor ordem para exibir a partir
     {
         if (clien[i].mComanda.getOrdem() != 0 && primeiro > clien[i].mComanda.getOrdem())  
         {
@@ -216,19 +235,19 @@ void ExibePedidos(Cliente *clien, Delivery *deliv)
 
     cout << "\n-----------------------------------------------------\n";
 
-    while (imprimiu)   
+    while (imprimiu)                                        // exibe os pedidos organizados baseado no método da bolha
     {
         imprimiu = 0;
         for (size_t i = 0; i < MAX_CLIENTE ; i++)  
         {
-            if (clien[i].mComanda.getOrdem() == primeiro)
+            if (clien[i].mComanda.getOrdem() == primeiro)   // procura o Cliente com a ordem correta para exibição
             {
                 primeiro++;
                 imprimiu = 1;
 
                 cout << "\nPedido N.: " << clien[i].mComanda.getOrdem() << " ----- Mesa: " << clien[i].getIdentidade() << endl; 
 
-                for (size_t j = 0; j < MAX_PRATOS; j++)     
+                for (size_t j = 0; j < MAX_PRATOS; j++)     // exibe os pedidos de acordo com a quantidade
                 {
                     if (clien[i].mComanda.getQuantidade(j) > 0)
                     {
@@ -236,14 +255,14 @@ void ExibePedidos(Cliente *clien, Delivery *deliv)
                     }
                 }
             }
-            else if (deliv[i].mComanda.getOrdem() == primeiro)
+            else if (deliv[i].mComanda.getOrdem() == primeiro) // procura o Delivery com a ordem correta para exibição
             {
                 primeiro++;
                 imprimiu = 1;
 
                 cout << "\nPedido N.: " << deliv[i].mComanda.getOrdem() << " ----- Delivery: " << deliv[i].getIdentidade() << endl; 
 
-                for (size_t j = 0; j < MAX_PRATOS; j++)    
+                for (size_t j = 0; j < MAX_PRATOS; j++)    // exibe os pedidos de acordo com a quantidade
                 {
                     if (deliv[i].mComanda.getQuantidade(j) > 0)
                     {
@@ -258,8 +277,8 @@ void ExibePedidos(Cliente *clien, Delivery *deliv)
 
 int main(int argc, char const *argv[])
 {
-    int opcao = 0, erro = 0, tPedidos = 0;
-    Cliente client[MAX_CLIENTE];
+    int opcao = 0, erro = 0, tPedidos = 0;      // erro para retorno de valores inesperados nas entradas das funções
+    Cliente client[MAX_CLIENTE];                // tpedidos para controle da ordem das comandas e armazena total de comandas do dia
     Delivery deli[MAX_CLIENTE];
 
 
@@ -275,9 +294,15 @@ int main(int argc, char const *argv[])
         << "5 - Novo delivery\n"
         << "6 - Sair\n";
 
-        if (erro) 
+        if (erro)
         {
-            cout << "\n         Valor " << erro << " invalido!\n";
+            if (erro != -101)                   // erro para nomes não encontrados
+            {
+                cout << "\n         Nome invalido!\n";
+            }
+            else{
+                cout << "\n         Valor " << erro << " invalido!\n";
+            }
             erro = 0;
         }
 

@@ -180,6 +180,32 @@ int EditaComanda(Cliente* client, Delivery* deliv, int operacao, int* NumCli)   
     return 0;
 }
 
+int buscaDelivery(Delivery *deliv)
+{
+    string nome;
+    bool encontrou = false;
+
+    cout << "\nNome do Cliente: ";
+    getchar();
+    getline(cin, nome);
+
+    for (size_t i = 0; i < MAX_CLIENTE; i++)
+    {
+        if (deliv[i].getIdentidade().find(nome) != string::npos)
+        {
+            cout << "\nNome: " + deliv[i].getIdentidade() + "\nContato: " + deliv[i].getContato() + "\nEndereco: " + deliv[i].getEndereco() << endl;
+            encontrou = true;
+            break;
+        }
+    }
+    cout << "\n-----------------------------------------------------\n";
+    
+    if (encontrou){
+        return 0;
+    }
+    return -101;
+}
+
 void Menu(int opcao, int *tpedidos, int *erro, Cliente *clien, Delivery *deli)  // retorna para a main os erros das funções
 {
     int NumCli;
@@ -208,6 +234,10 @@ void Menu(int opcao, int *tpedidos, int *erro, Cliente *clien, Delivery *deli)  
 
     case 5:                                             // inicia um novo Delivery, seus atributos, e uma ordem também conforme tpedidos incrementa
         *erro = cDelivery(deli, tpedidos);
+        break;
+
+    case 6:
+        //buscaDelivery
         break;
 
     default:  
@@ -292,13 +322,14 @@ int main(int argc, char const *argv[])
         << "3 - Fechar um item da comanda\n"
         << "4 - Fechar toda a comanda\n"
         << "5 - Novo delivery\n"
-        << "6 - Sair\n";
+        << "6 - Busca delivery\n"
+        << "7 - Sair\n";
 
         if (erro)
         {
-            if (erro != -101)                   // erro para nomes não encontrados
+            if (erro == -101)                   // erro para nomes não encontrados
             {
-                cout << "\n         Nome invalido!\n";
+                cout << "\n         Nome nao encontrado!\n";
             }
             else{
                 cout << "\n         Valor " << erro << " invalido!\n";
@@ -308,7 +339,7 @@ int main(int argc, char const *argv[])
 
         cin >> opcao;
 
-        if(opcao == 6){
+        if(opcao == 7){
             break;
         }
 
@@ -317,6 +348,11 @@ int main(int argc, char const *argv[])
         Clear(); 
 
         ExibePedidos(client, deli);
+
+        if (opcao == 6){
+            erro = buscaDelivery(deli);
+        }
+        
     }
     return 0;
 }

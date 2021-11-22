@@ -1,12 +1,15 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 #include "Cliente.hpp"
 #include "Delivery.hpp"
+#include "Contadora.hpp"
 
 #include "Pedido.cpp"
 #include "Comanda.cpp"
 #include "Cliente.cpp"
 #include "Delivery.cpp"
+#include "Contadora.cpp"
 
 #define MAX_CLIENTE 20
 
@@ -26,19 +29,19 @@ void Clear()    // limpa a tela do prompt de comando de acordo com o sistema ope
 #endif
 }
 
-int cDelivery(Delivery *del, int *tpedidos)     // inicia um objeto Delivery, bem como seus atributos
+int cDelivery(Delivery *del, int *tpedidos, Contadora *cont)     // inicia um objeto Delivery, bem como seus atributos
 {
-    string ende, cont, id;
+    string ende, conta, id;
     size_t vaz;
-    int quant, prato;
-    
+    int quant, prato, tPed = 0;
+
     getchar();
     cout << "\nNome: ";
     getline(cin, id);
     cout << "Endereco: ";
     getline(cin, ende);
     cout << "Contato: ";
-    getline(cin, cont);
+    getline(cin, conta);
     
     cout << "Quantidade: ";
     cin >> quant;
@@ -56,6 +59,8 @@ int cDelivery(Delivery *del, int *tpedidos)     // inicia um objeto Delivery, be
             return prato;
         }
 
+    cont->adicionaPrato(prato - 1, quant);
+
     for (size_t i = 0; i < MAX_CLIENTE; i++)    // procura um objeto "vazio" para iniciar o novo Delivery
     {
         if (del[i].getIdentidade().find("vazio") != string::npos)
@@ -65,7 +70,7 @@ int cDelivery(Delivery *del, int *tpedidos)     // inicia um objeto Delivery, be
         }   
     }
     *tpedidos += 1;
-    del[vaz].setContato(cont);
+    del[vaz].setContato(conta);
     del[vaz].setEndereco(ende);
     del[vaz].setIdentidade(id);
     del[vaz].mComanda.setQuantidade(quant, prato-1);
@@ -105,9 +110,9 @@ int fecharComanda(Cliente *cli, Delivery *del){     // zera um Cliente/Delivery,
     return 0;
 }
 
-int EditaComanda(Cliente* client, Delivery* deliv, int operacao, int* NumCli)   //adiciona ou remove pedidos das comandas de acordo com a operação
+int EditaComanda(Contadora *cont, Cliente* client, Delivery* deliv, int operacao, int *NumCli)   //adiciona ou remove pedidos das comandas de acordo com a operação
 {
-    int prato, quant;
+    int prato, quant, dia, tPed = 0, tClientes = 0, tDelivey = 0;
     string idClient;
     bool encontrou = false;                                 // flag para erro relativo a identidade no caso de um nome
 
@@ -128,6 +133,7 @@ int EditaComanda(Cliente* client, Delivery* deliv, int operacao, int* NumCli)   
         std::cout << "Prato: ";
         cin >> prato;
 
+
         if (prato <= 0 && prato > MAX_PRATOS)
         {
             return prato;
@@ -140,9 +146,8 @@ int EditaComanda(Cliente* client, Delivery* deliv, int operacao, int* NumCli)   
             {
                 if (client[nMesa-1].mComanda.getQuantidade(prato-1) + quant * operacao >= 0)    // avalia se a quantidade a retirar é maior que a atual
                 {
-                    client[nMesa-1].mComanda.setQuantidade(client[nMesa-1].mComanda.getQuantidade(prato-1) + quant * operacao, prato-1);    // com base na quantidade atual, soma ou subtrai a quantidade desejada
+                    cont->operacaoClien(operacao, &NumCli, nMesa, client, prato, quant);
                     client[nMesa-1].setIdentidade(idClient);
-                    *NumCli = nMesa-1;
                 }
                 else{
                     return quant;
@@ -162,8 +167,9 @@ int EditaComanda(Cliente* client, Delivery* deliv, int operacao, int* NumCli)   
 
                     if (deliv[i].mComanda.getQuantidade(prato-1) + quant * operacao >= 0)       // avalia quantidade digitada
                     {
-                        deliv[i].mComanda.setQuantidade(deliv[i].mComanda.getQuantidade(prato-1) + quant * operacao, prato-1);
-                        *NumCli = i;
+                        cont->operacaoDeli(operacao, &NumCli, deliv, prato, quant, i);
+                        /*deliv[i].mComanda.setQuantidade(deliv[i].mComanda.getQuantidade(prato-1) + quant * operacao, prato-1);
+                        *NumCli = i;*/
                         break;
                     }
                     else{
@@ -175,6 +181,11 @@ int EditaComanda(Cliente* client, Delivery* deliv, int operacao, int* NumCli)   
                 return -101;
             }
             
+        }
+        if(operacao == 1) {
+            cont->adicionaPrato(prato - 1, quant);
+        } else {
+            cont->retiraPrato(prato - 1, quant);
         }
     }
     return 0;
@@ -206,26 +217,28 @@ int buscaDelivery(Delivery *deliv)
     return -101;
 }
 
-void Menu(int opcao, int *tpedidos, int *erro, Cliente *clien, Delivery *deli)  // retorna para a main os erros das funções
+void Menu(int opcao, int *tpedidos, int *erro, Cliente *clien, Delivery *deli, Contadora *cont)  // retorna para a main os erros das funções
 {
     int NumCli;
+    int cDeli = 0;
 
     switch (opcao)
     {
     case 1:                                             // inicia um novo cliente, seus atributos, e atribui uma ordem conforme tpedidos incrementa
-        *erro = EditaComanda(clien, deli, 1, &NumCli);
+        *erro = EditaComanda(cont, clien, deli, 1, &NumCli);
         if(*erro == 0){
             *tpedidos += 1;
             clien[NumCli].mComanda.setOrdem(*tpedidos);
         }
+        cont->setContPedidos(1);
         break;
 
     case 2:                                             // adiciona à comanda de um cliente um ou mais pedidos
-        *erro = EditaComanda(clien, deli, 1, &NumCli);
+        *erro = EditaComanda(cont, clien, deli, 1, &NumCli);
         break;
 
     case 3:                                             // retira da comanda de um cliente/delivery um ou mais pedidos
-        *erro = EditaComanda(clien, deli, -1, &NumCli);
+        *erro = EditaComanda(cont, clien, deli, -1, &NumCli);
         break;
 
     case 4:                                             // zera os atributos de um cliente/delivery, além da ordem
@@ -233,7 +246,8 @@ void Menu(int opcao, int *tpedidos, int *erro, Cliente *clien, Delivery *deli)  
         break;
 
     case 5:                                             // inicia um novo Delivery, seus atributos, e uma ordem também conforme tpedidos incrementa
-        *erro = cDelivery(deli, tpedidos);
+        *erro = cDelivery(deli, tpedidos, cont);
+        cont->setContDelivery(1);
         break;
 
     case 6:
@@ -305,14 +319,43 @@ void ExibePedidos(Cliente *clien, Delivery *deliv)     // exibe os pedidos em or
     cout << "\n-----------------------------------------------------\n";
 }
 
+void Salvar(string data, Contadora *cont){
+    ofstream arq;
+
+    arq.open("dados.txt", ios::app);
+    if(!arq.is_open()) {
+        cout << "erro ao abrir arquivo" << endl;
+    }
+
+    arq << data << endl;
+
+    arq << "Prato --- " <<  "--- Quantidade --- " <<  "--- preco unitario --- " << "--- Valor total --- " << endl;
+
+    for(int i = 0; i < MAX_PRATOS; i++){
+        if(cont->getContador(i) > 0){
+            arq << cont->getCardapio(i) << "    " << cont->getContador(i) << "    " << cont->getPreco(i) << "    " <<   cont->getPreco(i) * cont->getContador(i) << endl;
+        }
+    }
+
+    
+    arq << "Total clientes: " << cont->getContPedidos() << endl;
+    arq << "Total Delivery: " << cont->getContDelivery() << endl;
+    arq << "Renda: " << cont->calculaValor() << endl;
+    arq.close();
+}
+
 int main(int argc, char const *argv[])
 {
-    int opcao = 0, erro = 0, tPedidos = 0;      // erro para retorno de valores inesperados nas entradas das funções
+    int opcao = 0, erro = 0, tPedidos = 0, tDeli = 0;      // erro para retorno de valores inesperados nas entradas das funções
     Cliente client[MAX_CLIENTE];                // tpedidos para controle da ordem das comandas e armazena total de comandas do dia
     Delivery deli[MAX_CLIENTE];
+    Contadora cont;
+    string data;
 
 
     cout << "           Bem-vindo!\n";
+    cout << "Digite a data de hoje(dd/mm/aa): ";
+    getline(cin, data);
 
     while (1)
     {
@@ -343,7 +386,7 @@ int main(int argc, char const *argv[])
             break;
         }
 
-        Menu(opcao, &tPedidos, &erro, client, deli);
+        Menu(opcao, &tPedidos, &erro, client, deli, &cont);
 
         Clear(); 
 
@@ -354,5 +397,8 @@ int main(int argc, char const *argv[])
         }
         
     }
+
+    Salvar(data, &cont);
+
     return 0;
 }

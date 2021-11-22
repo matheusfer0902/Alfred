@@ -44,7 +44,10 @@ std::string EntradaException::msgException()
         return "Cliente \"" + erro + "\" nao encontrado!";
 
     case 6:
-        return "Opcao " + erro + " invalida";
+        return "Opcao " + erro + " invalida!";
+
+    case 7:
+        return "Nao foi possivel abrir o arquivo \"" + erro + "\"!\n";
     
     default:
         return "Erro inesperado";

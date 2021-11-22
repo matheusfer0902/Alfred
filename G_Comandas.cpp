@@ -9,6 +9,7 @@
 #include <fstream>
 #include "Contadora.hpp"
 #include <string.h>
+#include <ctime>
 
 #include "Pedido.cpp"
 #include "Comanda.cpp"
@@ -40,7 +41,7 @@ void cDelivery(Delivery *del, int *tpedidos, Contadora *cont)     // inicia um o
 {
     string ende, conta, id;
     size_t vaz;
-    int quant, prato, tPed = 0;
+    int quant, prato;
     EntradaException ex;
 
     getchar();
@@ -138,7 +139,7 @@ void fecharComanda(Cliente *cli, Delivery *del){     // zera um Cliente/Delivery
 
 void EditaComanda(Contadora *cont, Cliente* client, Delivery* deliv, int operacao, int *NumCli)   //adiciona ou remove pedidos das comandas de acordo com a operação
 {
-    int prato, quant, dia, tPed = 0, tClientes = 0, tDelivey = 0;
+    int prato, quant;
     string idClient;
     bool encontrou = false;                                 // flag para erro relativo a identidade no caso de um nome
     EntradaException ex;
@@ -180,7 +181,6 @@ void EditaComanda(Contadora *cont, Cliente* client, Delivery* deliv, int operaca
             {
                 if (client[nMesa-1].mComanda.getQuantidade(prato-1) + quant * operacao >= 0)    // avalia se a quantidade a retirar é maior que a atual
                 {
-                    //!cont->operacaoClien(operacao, &NumCli, nMesa, client, prato, quant);
                     client[nMesa-1].mComanda.setQuantidade(client[nMesa-1].mComanda.getQuantidade(prato-1) + quant * operacao, prato-1);    // com base na quantidade atual, soma ou subtrai a quantidade desejada
                     client[nMesa-1].setIdentidade(idClient);
                     *NumCli = nMesa-1;
@@ -205,7 +205,6 @@ void EditaComanda(Contadora *cont, Cliente* client, Delivery* deliv, int operaca
 
                     if (deliv[i].mComanda.getQuantidade(prato-1) + quant * operacao >= 0)       // avalia quantidade digitada
                     {
-                        //!cont->operacaoDeli(operacao, &NumCli, deliv, prato, quant, i);
                         deliv[i].mComanda.setQuantidade(deliv[i].mComanda.getQuantidade(prato-1) + quant * operacao, prato-1);
                         *NumCli = i;
                         break;
@@ -256,6 +255,46 @@ void buscaDelivery(Delivery *deliv)
     cout << "\n-----------------------------------------------------\n";
 }
 
+void Salvar(Contadora *cont){
+    ofstream arq;
+    string tamanho, data;
+    EntradaException ex;
+    tm *calendario;
+
+    arq.open("Relatorio.txt", ios::app);
+    if(!arq.is_open()) {
+        ex = EntradaException(7, "Relatorio.txt");
+        throw ex;
+    }
+
+    data = to_string(calendario->tm_yday) + "/" + to_string(calendario->tm_mon) + "/" + to_string(calendario->tm_year);
+
+    arq << "\n" << data << endl;
+
+    arq << "Valor total --- " <<  "--- Quantidade --- " <<  "--- preco unitario --- " << "--- Prato --- " << endl;
+
+    for(int i = 0; i < MAX_PRATOS; i++){
+        if(cont->getContador(i) > 0){
+
+            ostringstream s;
+            s << cont->getContador(i) * cont->getPreco(i);
+            tamanho = (s.str());
+
+            if(tamanho.length() <= 4){
+                arq << "   " << cont->getContador(i) * cont->getPreco(i) << "              " <<  "   " << cont->getContador(i) << "               " << "    " << cont->getPreco(i) << "        " << "    " << cont->getCardapio(i) << endl;
+            } else if (tamanho.length() == 5){
+                arq << "   " << cont->getContador(i) * cont->getPreco(i) << "             " <<  "   " << cont->getContador(i) << "               " << "    " << cont->getPreco(i) << "        " << "    " << cont->getCardapio(i) << endl;
+            } else if (tamanho.length() == 6){
+                arq << "   " << cont->getContador(i) * cont->getPreco(i) << "            " <<  "   " << cont->getContador(i) << "               " << "    " << cont->getPreco(i) << "        " << "    " << cont->getCardapio(i) << endl;
+            }
+        }
+    }
+    arq << "Total clientes: " << cont->getContPedidos() << endl;
+    arq << "Total Delivery: " << cont->getContDelivery() << endl;
+    arq << "Renda: " << cont->calculaValor() << endl;
+    arq.close();
+}
+
 void Menu(int opcao, int *tpedidos, Cliente *clien, Delivery *deli, Contadora *cont)  // retorna para a main os erros das funções
 {
     int NumCli;
@@ -289,6 +328,10 @@ void Menu(int opcao, int *tpedidos, Cliente *clien, Delivery *deli, Contadora *c
 
     case 6:
         //buscaDelivery
+        break;
+
+    case 7:
+        Salvar(cont);
         break;
 
     default:  
@@ -356,57 +399,16 @@ void ExibePedidos(Cliente *clien, Delivery *deliv)     // exibe os pedidos em or
     cout << "\n-----------------------------------------------------\n";
 }
 
-void Salvar(string data, Contadora *cont){
-    ofstream arq;
-    string tamanho;
-
-    arq.open("dados.txt", ios::app);
-    if(!arq.is_open()) {
-        cout << "erro ao abrir arquivo" << endl;
-    }
-
-    arq << "\n" << data << endl;
-
-    arq << "Valor total --- " <<  "--- Quantidade --- " <<  "--- preco unitario --- " << "--- Prato --- " << endl;
-
-    for(int i = 0; i < MAX_PRATOS; i++){
-        if(cont->getContador(i) > 0){
-
-            ostringstream s;
-            s << cont->getContador(i) * cont->getPreco(i);
-            tamanho = (s.str());
-
-            if(tamanho.length() <= 4){
-                arq << "   " << cont->getContador(i) * cont->getPreco(i) << "              " <<  "   " << cont->getContador(i) << "               " << "    " << cont->getPreco(i) << "        " << "    " << cont->getCardapio(i) << endl;
-            } else if (tamanho.length() == 5){
-                arq << "   " << cont->getContador(i) * cont->getPreco(i) << "             " <<  "   " << cont->getContador(i) << "               " << "    " << cont->getPreco(i) << "        " << "    " << cont->getCardapio(i) << endl;
-            } else if (tamanho.length() == 6){
-                arq << "   " << cont->getContador(i) * cont->getPreco(i) << "            " <<  "   " << cont->getContador(i) << "               " << "    " << cont->getPreco(i) << "        " << "    " << cont->getCardapio(i) << endl;
-            }
-        }
-    }
-
-    
-    arq << "Total clientes: " << cont->getContPedidos() << endl;
-    arq << "Total Delivery: " << cont->getContDelivery() << endl;
-    arq << "Renda: " << cont->calculaValor() << endl;
-    arq.close();
-}
-
 int main(int argc, char const *argv[])
 {
     int opcao = 0, tPedidos = 0;      // erro para retorno de valores inesperados nas entradas das funções
-    Cliente client[MAX_CLIENTE];                // tpedidos para controle da ordem das comandas e armazena total de comandas do dia
+    Cliente client[MAX_CLIENTE];      // tpedidos para controle da ordem das comandas e armazena total de comandas do dia
     Delivery deli[MAX_CLIENTE];
     Contadora cont;
-    string data;
-
 
     cout << "           Bem-vindo!\n";
-    cout << "Digite a data de hoje(dd/mm/aa): ";
-    getline(cin, data);
 
-    while (1)
+    while (opcao != 7)
     {
         cout << "\nSelecione uma opcao:\n"
         << "1 - Nova mesa\n"
@@ -415,13 +417,9 @@ int main(int argc, char const *argv[])
         << "4 - Fechar comanda\n"
         << "5 - Novo delivery\n"
         << "6 - Busca delivery\n"
-        << "7 - Sair\n";
+        << "7 - Salvar e sair\n";
 
         cin >> opcao;
-
-        if(opcao == 7){
-            break;
-        }
 
         try
         {
@@ -446,8 +444,5 @@ int main(int argc, char const *argv[])
             }
         }
     }
-
-    Salvar(data, &cont);
-
     return 0;
 }

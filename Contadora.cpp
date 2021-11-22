@@ -34,7 +34,7 @@ void Contadora::adicionaPrato(int prato, int quantidade){
 void Contadora::retiraPrato(int prato, int quantidade){
     contador[prato] -= quantidade;
 }
-/*
+
 void Contadora::operacaoClien(int operacao, int **NumCli, int nMesa,Cliente* client, int prato, int quant){
     client[nMesa-1].mComanda.setQuantidade(client[nMesa-1].mComanda.getQuantidade(prato-1) + quant * operacao, prato-1);    // com base na quantidade atual, soma ou subtrai a quantidade desejada
     **NumCli = nMesa-1;
@@ -48,7 +48,7 @@ void Contadora::operacaoDeli(int operacao, int **NumCli, Delivery* deliv, int pr
     if(operacao == 1){
     }
 }
-*/
+
 void Contadora::setContPedidos(int pedidos){
     contPedidos += pedidos;
 }

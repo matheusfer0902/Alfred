@@ -1,16 +1,29 @@
 #include <iostream>
 #include <string>
+<<<<<<< HEAD
 #include "Pedido.hpp"
 #include "Comanda.hpp"
 #include "Cliente.hpp"
 #include "Delivery.hpp"
 #include "EntradaException.hpp"
+=======
+#include <string.h>
+#include <sstream>
+#include <fstream>
+#include "Cliente.hpp"
+#include "Delivery.hpp"
+#include "Contadora.hpp"
+>>>>>>> b9e78ccaa2b91c8fedd110bbb040085b854aa3d9
 
 #include "Pedido.cpp"
 #include "Comanda.cpp"
 #include "Cliente.cpp"
 #include "Delivery.cpp"
+<<<<<<< HEAD
 #include "EntradaException.cpp"
+=======
+#include "Contadora.cpp"
+>>>>>>> b9e78ccaa2b91c8fedd110bbb040085b854aa3d9
 
 #define MAX_CLIENTE 20
 
@@ -30,20 +43,29 @@ void Clear()    // limpa a tela do prompt de comando de acordo com o sistema ope
 #endif
 }
 
+<<<<<<< HEAD
 void cDelivery(Delivery *del, int *tpedidos)     // inicia um objeto Delivery, bem como seus atributos
+=======
+int cDelivery(Delivery *del, int *tpedidos, Contadora *cont)     // inicia um objeto Delivery, bem como seus atributos
+>>>>>>> b9e78ccaa2b91c8fedd110bbb040085b854aa3d9
 {
-    string ende, cont, id;
+    string ende, conta, id;
     size_t vaz;
+<<<<<<< HEAD
     int quant, prato;
     EntradaException ex;
     
+=======
+    int quant, prato, tPed = 0;
+
+>>>>>>> b9e78ccaa2b91c8fedd110bbb040085b854aa3d9
     getchar();
     cout << "\nNome: ";
     getline(cin, id);
     cout << "Endereco: ";
     getline(cin, ende);
     cout << "Contato: ";
-    getline(cin, cont);
+    getline(cin, conta);
     
     cout << "Quantidade: ";
     cin >> quant;
@@ -69,6 +91,8 @@ void cDelivery(Delivery *del, int *tpedidos)     // inicia um objeto Delivery, b
             throw ex;
         }
 
+    cont->adicionaPrato(prato - 1, quant);
+
     for (size_t i = 0; i < MAX_CLIENTE; i++)    // procura um objeto "vazio" para iniciar o novo Delivery
     {
         if (del[i].getIdentidade().find("vazio") != string::npos)
@@ -78,7 +102,7 @@ void cDelivery(Delivery *del, int *tpedidos)     // inicia um objeto Delivery, b
         }   
     }
     *tpedidos += 1;
-    del[vaz].setContato(cont);
+    del[vaz].setContato(conta);
     del[vaz].setEndereco(ende);
     del[vaz].setIdentidade(id);
     del[vaz].mComanda.setQuantidade(quant, prato-1);
@@ -128,9 +152,13 @@ void fecharComanda(Cliente *cli, Delivery *del){     // zera um Cliente/Delivery
     }
 }
 
+<<<<<<< HEAD
 void EditaComanda(Cliente* client, Delivery* deliv, int operacao, int* NumCli)   //adiciona ou remove pedidos das comandas de acordo com a operação
+=======
+int EditaComanda(Contadora *cont, Cliente* client, Delivery* deliv, int operacao, int *NumCli)   //adiciona ou remove pedidos das comandas de acordo com a operação
+>>>>>>> b9e78ccaa2b91c8fedd110bbb040085b854aa3d9
 {
-    int prato, quant;
+    int prato, quant, dia, tPed = 0, tClientes = 0, tDelivey = 0;
     string idClient;
     bool encontrou = false;                                 // flag para erro relativo a identidade no caso de um nome
     EntradaException ex;
@@ -156,10 +184,15 @@ void EditaComanda(Cliente* client, Delivery* deliv, int operacao, int* NumCli)  
         std::cout << "Prato: ";
         cin >> prato;
 
+<<<<<<< HEAD
         if (prato == 0)
             return;
 
         if (prato < 1 && prato > MAX_PRATOS)
+=======
+
+        if (prato <= 0 && prato > MAX_PRATOS)
+>>>>>>> b9e78ccaa2b91c8fedd110bbb040085b854aa3d9
         {
             ex = EntradaException(2, prato);
             throw ex;
@@ -172,9 +205,8 @@ void EditaComanda(Cliente* client, Delivery* deliv, int operacao, int* NumCli)  
             {
                 if (client[nMesa-1].mComanda.getQuantidade(prato-1) + quant * operacao >= 0)    // avalia se a quantidade a retirar é maior que a atual
                 {
-                    client[nMesa-1].mComanda.setQuantidade(client[nMesa-1].mComanda.getQuantidade(prato-1) + quant * operacao, prato-1);    // com base na quantidade atual, soma ou subtrai a quantidade desejada
+                    cont->operacaoClien(operacao, &NumCli, nMesa, client, prato, quant);
                     client[nMesa-1].setIdentidade(idClient);
-                    *NumCli = nMesa-1;
                 }
                 else{
                     ex = EntradaException(4, quant);
@@ -196,8 +228,9 @@ void EditaComanda(Cliente* client, Delivery* deliv, int operacao, int* NumCli)  
 
                     if (deliv[i].mComanda.getQuantidade(prato-1) + quant * operacao >= 0)       // avalia quantidade digitada
                     {
-                        deliv[i].mComanda.setQuantidade(deliv[i].mComanda.getQuantidade(prato-1) + quant * operacao, prato-1);
-                        *NumCli = i;
+                        cont->operacaoDeli(operacao, &NumCli, deliv, prato, quant, i);
+                        /*deliv[i].mComanda.setQuantidade(deliv[i].mComanda.getQuantidade(prato-1) + quant * operacao, prato-1);
+                        *NumCli = i;*/
                         break;
                     }
                     else{
@@ -210,6 +243,11 @@ void EditaComanda(Cliente* client, Delivery* deliv, int operacao, int* NumCli)  
                 ex = EntradaException(5, idClient);
                 throw ex;
             }
+        }
+        if(operacao == 1) {
+            cont->adicionaPrato(prato - 1, quant);
+        } else {
+            cont->retiraPrato(prato - 1, quant);
         }
     }
 }
@@ -241,14 +279,22 @@ void buscaDelivery(Delivery *deliv)
     cout << "\n-----------------------------------------------------\n";
 }
 
+<<<<<<< HEAD
 void Menu(int opcao, int *tpedidos, Cliente *clien, Delivery *deli)  // retorna para a main os erros das funções
 {
     int NumCli;
     EntradaException ex;
+=======
+void Menu(int opcao, int *tpedidos, int *erro, Cliente *clien, Delivery *deli, Contadora *cont)  // retorna para a main os erros das funções
+{
+    int NumCli;
+    int cDeli = 0;
+>>>>>>> b9e78ccaa2b91c8fedd110bbb040085b854aa3d9
 
     switch (opcao)
     {
     case 1:                                             // inicia um novo cliente, seus atributos, e atribui uma ordem conforme tpedidos incrementa
+<<<<<<< HEAD
         EditaComanda(clien, deli, 1, &NumCli);
         *tpedidos += 1;
         clien[NumCli].mComanda.setOrdem(*tpedidos);
@@ -260,6 +306,22 @@ void Menu(int opcao, int *tpedidos, Cliente *clien, Delivery *deli)  // retorna 
 
     case 3:                                             // retira da comanda de um cliente/delivery um ou mais pedidos
         EditaComanda(clien, deli, -1, &NumCli);
+=======
+        *erro = EditaComanda(cont, clien, deli, 1, &NumCli);
+        if(*erro == 0){
+            *tpedidos += 1;
+            clien[NumCli].mComanda.setOrdem(*tpedidos);
+        }
+        cont->setContPedidos(1);
+        break;
+
+    case 2:                                             // adiciona à comanda de um cliente um ou mais pedidos
+        *erro = EditaComanda(cont, clien, deli, 1, &NumCli);
+        break;
+
+    case 3:                                             // retira da comanda de um cliente/delivery um ou mais pedidos
+        *erro = EditaComanda(cont, clien, deli, -1, &NumCli);
+>>>>>>> b9e78ccaa2b91c8fedd110bbb040085b854aa3d9
         break;
 
     case 4:                                             // zera os atributos de um cliente/delivery, além da ordem
@@ -267,7 +329,12 @@ void Menu(int opcao, int *tpedidos, Cliente *clien, Delivery *deli)  // retorna 
         break;
 
     case 5:                                             // inicia um novo Delivery, seus atributos, e uma ordem também conforme tpedidos incrementa
+<<<<<<< HEAD
         cDelivery(deli, tpedidos);
+=======
+        *erro = cDelivery(deli, tpedidos, cont);
+        cont->setContDelivery(1);
+>>>>>>> b9e78ccaa2b91c8fedd110bbb040085b854aa3d9
         break;
 
     case 6:
@@ -339,14 +406,59 @@ void ExibePedidos(Cliente *clien, Delivery *deliv)     // exibe os pedidos em or
     cout << "\n-----------------------------------------------------\n";
 }
 
+void Salvar(string data, Contadora *cont){
+    ofstream arq;
+    string tamanho;
+
+    arq.open("dados.txt", ios::app);
+    if(!arq.is_open()) {
+        cout << "erro ao abrir arquivo" << endl;
+    }
+
+    arq << "\n" << data << endl;
+
+    arq << "Valor total --- " <<  "--- Quantidade --- " <<  "--- preco unitario --- " << "--- Prato --- " << endl;
+
+    for(int i = 0; i < MAX_PRATOS; i++){
+        if(cont->getContador(i) > 0){
+
+            ostringstream s;
+            s << cont->getContador(i) * cont->getPreco(i);
+            tamanho = (s.str());
+
+            if(tamanho.length() <= 4){
+                arq << "   " << cont->getContador(i) * cont->getPreco(i) << "              " <<  "   " << cont->getContador(i) << "               " << "    " << cont->getPreco(i) << "        " << "    " << cont->getCardapio(i) << endl;
+            } else if (tamanho.length() == 5){
+                arq << "   " << cont->getContador(i) * cont->getPreco(i) << "             " <<  "   " << cont->getContador(i) << "               " << "    " << cont->getPreco(i) << "        " << "    " << cont->getCardapio(i) << endl;
+            } else if (tamanho.length() == 6){
+                arq << "   " << cont->getContador(i) * cont->getPreco(i) << "            " <<  "   " << cont->getContador(i) << "               " << "    " << cont->getPreco(i) << "        " << "    " << cont->getCardapio(i) << endl;
+            }
+        }
+    }
+
+    
+    arq << "Total clientes: " << cont->getContPedidos() << endl;
+    arq << "Total Delivery: " << cont->getContDelivery() << endl;
+    arq << "Renda: " << cont->calculaValor() << endl;
+    arq.close();
+}
+
 int main(int argc, char const *argv[])
 {
+<<<<<<< HEAD
     int opcao = 0, tPedidos = 0;      // erro para retorno de valores inesperados nas entradas das funções
+=======
+    int opcao = 0, erro = 0, tPedidos = 0, tDeli = 0;      // erro para retorno de valores inesperados nas entradas das funções
+>>>>>>> b9e78ccaa2b91c8fedd110bbb040085b854aa3d9
     Cliente client[MAX_CLIENTE];                // tpedidos para controle da ordem das comandas e armazena total de comandas do dia
     Delivery deli[MAX_CLIENTE];
+    Contadora cont;
+    string data;
 
 
     cout << "           Bem-vindo!\n";
+    cout << "Digite a data de hoje(dd/mm/aa): ";
+    getline(cin, data);
 
     while (1)
     {
@@ -365,6 +477,7 @@ int main(int argc, char const *argv[])
             break;
         }
 
+<<<<<<< HEAD
         try
         {
             Menu(opcao, &tPedidos, client, deli);
@@ -374,6 +487,11 @@ int main(int argc, char const *argv[])
         {
             cout << ex.msgException();
         }
+=======
+        Menu(opcao, &tPedidos, &erro, client, deli, &cont);
+
+        Clear(); 
+>>>>>>> b9e78ccaa2b91c8fedd110bbb040085b854aa3d9
 
         ExibePedidos(client, deli);
 
@@ -388,5 +506,8 @@ int main(int argc, char const *argv[])
             }
         }
     }
+
+    Salvar(data, &cont);
+
     return 0;
 }

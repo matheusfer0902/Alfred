@@ -15,6 +15,7 @@ class Pedido
 		int quantidade, prato;
 		std::string cardapio[MAX_PRATOS] {"Executivo", "Churrasco", "Sopa suspeita", "Cafe", "Suco", 
 		"Feijoada", "Salada", "Pipoca na manteiga", "Pizza", "Sushi"};
+		double preco[MAX_PRATOS] {12.50, 24.99, 99.99, 5.0, 4.0, 21.75, 8.50, 2.0, 31.47, 2.50};
 
 	public:
 

@@ -47,5 +47,3 @@ int Comanda::getQuantidade(int prato){
 std::string Comanda::getStrPrato(int prato){
     return cmda[prato].getStrPrato();
 }
-
-

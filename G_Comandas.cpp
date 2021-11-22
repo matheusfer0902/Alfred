@@ -1,5 +1,7 @@
 #include <iostream>
 #include <string>
+#include <string.h>
+#include <sstream>
 #include <fstream>
 #include "Cliente.hpp"
 #include "Delivery.hpp"
@@ -321,19 +323,31 @@ void ExibePedidos(Cliente *clien, Delivery *deliv)     // exibe os pedidos em or
 
 void Salvar(string data, Contadora *cont){
     ofstream arq;
+    string tamanho;
 
     arq.open("dados.txt", ios::app);
     if(!arq.is_open()) {
         cout << "erro ao abrir arquivo" << endl;
     }
 
-    arq << data << endl;
+    arq << "\n" << data << endl;
 
-    arq << "Prato --- " <<  "--- Quantidade --- " <<  "--- preco unitario --- " << "--- Valor total --- " << endl;
+    arq << "Valor total --- " <<  "--- Quantidade --- " <<  "--- preco unitario --- " << "--- Prato --- " << endl;
 
     for(int i = 0; i < MAX_PRATOS; i++){
         if(cont->getContador(i) > 0){
-            arq << cont->getCardapio(i) << "    " << cont->getContador(i) << "    " << cont->getPreco(i) << "    " <<   cont->getPreco(i) * cont->getContador(i) << endl;
+
+            ostringstream s;
+            s << cont->getContador(i) * cont->getPreco(i);
+            tamanho = (s.str());
+
+            if(tamanho.length() <= 4){
+                arq << "   " << cont->getContador(i) * cont->getPreco(i) << "              " <<  "   " << cont->getContador(i) << "               " << "    " << cont->getPreco(i) << "        " << "    " << cont->getCardapio(i) << endl;
+            } else if (tamanho.length() == 5){
+                arq << "   " << cont->getContador(i) * cont->getPreco(i) << "             " <<  "   " << cont->getContador(i) << "               " << "    " << cont->getPreco(i) << "        " << "    " << cont->getCardapio(i) << endl;
+            } else if (tamanho.length() == 6){
+                arq << "   " << cont->getContador(i) * cont->getPreco(i) << "            " <<  "   " << cont->getContador(i) << "               " << "    " << cont->getPreco(i) << "        " << "    " << cont->getCardapio(i) << endl;
+            }
         }
     }
 

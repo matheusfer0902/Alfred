@@ -1,12 +1,16 @@
 #include <iostream>
 #include <string>
+#include "Pedido.hpp"
+#include "Comanda.hpp"
 #include "Cliente.hpp"
 #include "Delivery.hpp"
+#include "EntradaException.hpp"
 
 #include "Pedido.cpp"
 #include "Comanda.cpp"
 #include "Cliente.cpp"
 #include "Delivery.cpp"
+#include "EntradaException.cpp"
 
 #define MAX_CLIENTE 20
 
@@ -26,11 +30,12 @@ void Clear()    // limpa a tela do prompt de comando de acordo com o sistema ope
 #endif
 }
 
-int cDelivery(Delivery *del, int *tpedidos)     // inicia um objeto Delivery, bem como seus atributos
+void cDelivery(Delivery *del, int *tpedidos)     // inicia um objeto Delivery, bem como seus atributos
 {
     string ende, cont, id;
     size_t vaz;
     int quant, prato;
+    EntradaException ex;
     
     getchar();
     cout << "\nNome: ";
@@ -43,17 +48,25 @@ int cDelivery(Delivery *del, int *tpedidos)     // inicia um objeto Delivery, be
     cout << "Quantidade: ";
     cin >> quant;
 
-    if (quant <= 0)
-        {
-            return quant;
-        }
+    if (quant == 0)
+        return;
+
+    if (quant < 0)
+    {
+        ex = EntradaException(1, quant);
+        throw ex;
+    }
     
     cout << "Prato: ";
     cin >> prato;
+    
+    if (prato == 0)
+        return;
 
-    if (prato <= 0 && prato > MAX_PRATOS)
+    if (prato < 1 && prato > MAX_PRATOS)
         {
-            return prato;
+            ex = EntradaException(2, prato);
+            throw ex;
         }
 
     for (size_t i = 0; i < MAX_CLIENTE; i++)    // procura um objeto "vazio" para iniciar o novo Delivery
@@ -70,12 +83,12 @@ int cDelivery(Delivery *del, int *tpedidos)     // inicia um objeto Delivery, be
     del[vaz].setIdentidade(id);
     del[vaz].mComanda.setQuantidade(quant, prato-1);
     del[vaz].mComanda.setOrdem(*tpedidos);
-
-    return 0;
 }
 
-int fecharComanda(Cliente *cli, Delivery *del){     // zera um Cliente/Delivery, junto de seus atributos
+void fecharComanda(Cliente *cli, Delivery *del){     // zera um Cliente/Delivery, junto de seus atributos
     string idClient;
+    EntradaException ex;
+    bool encontrou = false;
 
     cout << "           \nDigite 0 para encerrar\n";
     cout << "Mesa/nome do Cliente: " << endl;
@@ -89,6 +102,10 @@ int fecharComanda(Cliente *cli, Delivery *del){     // zera um Cliente/Delivery,
             cli[nComanda-1].mComanda.setZero();
             cli[nComanda-1].setIdentidade("vazio");
         }
+        else{
+            ex = EntradaException(3, nComanda);
+            throw ex;
+        }
     }
     else                                                    // nao sendo número, é um Delivery com um nome
     {
@@ -96,20 +113,27 @@ int fecharComanda(Cliente *cli, Delivery *del){     // zera um Cliente/Delivery,
         {
             if (del[i].getIdentidade().find(idClient) != std::string::npos)
             {
+                encontrou = true;
+
                 del[i].mComanda.setZero();
                 del[i].setIdentidade("vazio");
                 break;
             }
         }
+        if (!encontrou)
+        {
+            ex = EntradaException(5, idClient);
+            throw ex;
+        }
     }
-    return 0;
 }
 
-int EditaComanda(Cliente* client, Delivery* deliv, int operacao, int* NumCli)   //adiciona ou remove pedidos das comandas de acordo com a operação
+void EditaComanda(Cliente* client, Delivery* deliv, int operacao, int* NumCli)   //adiciona ou remove pedidos das comandas de acordo com a operação
 {
     int prato, quant;
     string idClient;
     bool encontrou = false;                                 // flag para erro relativo a identidade no caso de um nome
+    EntradaException ex;
 
     cout << "\n           Digite 0 para encerrar\n";
     std::cout << "\nMesa/nome do Cliente: ";
@@ -120,17 +144,25 @@ int EditaComanda(Cliente* client, Delivery* deliv, int operacao, int* NumCli)   
         std::cout << "Quantidade: ";
         cin >> quant;
         
-        if (quant <= 0)
+        if (quant == 0)
+            return;
+        
+        if (quant < 0)
         {
-            return quant;
+            ex = EntradaException(1, quant);
+            throw ex;
         }
         
         std::cout << "Prato: ";
         cin >> prato;
 
-        if (prato <= 0 && prato > MAX_PRATOS)
+        if (prato == 0)
+            return;
+
+        if (prato < 1 && prato > MAX_PRATOS)
         {
-            return prato;
+            ex = EntradaException(2, prato);
+            throw ex;
         }
 
         if (idClient[0] >= '0' && idClient[0] <= '9')       // identifica um Cliente por ter um número de mesa com identidade
@@ -145,11 +177,13 @@ int EditaComanda(Cliente* client, Delivery* deliv, int operacao, int* NumCli)   
                     *NumCli = nMesa-1;
                 }
                 else{
-                    return quant;
+                    ex = EntradaException(4, quant);
+                    throw ex;
                 }
             }
             else{
-                return nMesa;
+                ex = EntradaException(3, nMesa);
+                throw ex;
             }
         }
         else
@@ -167,23 +201,24 @@ int EditaComanda(Cliente* client, Delivery* deliv, int operacao, int* NumCli)   
                         break;
                     }
                     else{
-                        return quant;
+                        ex = EntradaException(4, quant);
+                        throw ex;
                     }
                 }
             }
             if (!encontrou){
-                return -101;
+                ex = EntradaException(5, idClient);
+                throw ex;
             }
-            
         }
     }
-    return 0;
 }
 
-int buscaDelivery(Delivery *deliv)
+void buscaDelivery(Delivery *deliv)
 {
     string nome;
     bool encontrou = false;
+    EntradaException ex;
 
     cout << "\nNome do Cliente: ";
     getchar();
@@ -198,42 +233,41 @@ int buscaDelivery(Delivery *deliv)
             break;
         }
     }
-    cout << "\n-----------------------------------------------------\n";
-    
-    if (encontrou){
-        return 0;
+    if (!encontrou)
+    {
+        ex = EntradaException(5, nome);
+        throw ex;
     }
-    return -101;
+    cout << "\n-----------------------------------------------------\n";
 }
 
-void Menu(int opcao, int *tpedidos, int *erro, Cliente *clien, Delivery *deli)  // retorna para a main os erros das funções
+void Menu(int opcao, int *tpedidos, Cliente *clien, Delivery *deli)  // retorna para a main os erros das funções
 {
     int NumCli;
+    EntradaException ex;
 
     switch (opcao)
     {
     case 1:                                             // inicia um novo cliente, seus atributos, e atribui uma ordem conforme tpedidos incrementa
-        *erro = EditaComanda(clien, deli, 1, &NumCli);
-        if(*erro == 0){
-            *tpedidos += 1;
-            clien[NumCli].mComanda.setOrdem(*tpedidos);
-        }
+        EditaComanda(clien, deli, 1, &NumCli);
+        *tpedidos += 1;
+        clien[NumCli].mComanda.setOrdem(*tpedidos);
         break;
 
     case 2:                                             // adiciona à comanda de um cliente um ou mais pedidos
-        *erro = EditaComanda(clien, deli, 1, &NumCli);
+        EditaComanda(clien, deli, 1, &NumCli);
         break;
 
     case 3:                                             // retira da comanda de um cliente/delivery um ou mais pedidos
-        *erro = EditaComanda(clien, deli, -1, &NumCli);
+        EditaComanda(clien, deli, -1, &NumCli);
         break;
 
     case 4:                                             // zera os atributos de um cliente/delivery, além da ordem
-        *erro = fecharComanda(clien, deli);
+        fecharComanda(clien, deli);
         break;
 
     case 5:                                             // inicia um novo Delivery, seus atributos, e uma ordem também conforme tpedidos incrementa
-        *erro = cDelivery(deli, tpedidos);
+        cDelivery(deli, tpedidos);
         break;
 
     case 6:
@@ -241,8 +275,8 @@ void Menu(int opcao, int *tpedidos, int *erro, Cliente *clien, Delivery *deli)  
         break;
 
     default:  
-        *erro = opcao;
-        break;
+        ex = EntradaException(6, opcao);
+        throw ex;
     }
 }
 
@@ -307,7 +341,7 @@ void ExibePedidos(Cliente *clien, Delivery *deliv)     // exibe os pedidos em or
 
 int main(int argc, char const *argv[])
 {
-    int opcao = 0, erro = 0, tPedidos = 0;      // erro para retorno de valores inesperados nas entradas das funções
+    int opcao = 0, tPedidos = 0;      // erro para retorno de valores inesperados nas entradas das funções
     Cliente client[MAX_CLIENTE];                // tpedidos para controle da ordem das comandas e armazena total de comandas do dia
     Delivery deli[MAX_CLIENTE];
 
@@ -320,22 +354,10 @@ int main(int argc, char const *argv[])
         << "1 - Nova mesa\n"
         << "2 - Adicionar na comanda\n"
         << "3 - Fechar um item da comanda\n"
-        << "4 - Fechar toda a comanda\n"
+        << "4 - Fechar comanda\n"
         << "5 - Novo delivery\n"
         << "6 - Busca delivery\n"
         << "7 - Sair\n";
-
-        if (erro)
-        {
-            if (erro == -101)                   // erro para nomes não encontrados
-            {
-                cout << "\n         Nome nao encontrado!\n";
-            }
-            else{
-                cout << "\n         Valor " << erro << " invalido!\n";
-            }
-            erro = 0;
-        }
 
         cin >> opcao;
 
@@ -343,16 +365,28 @@ int main(int argc, char const *argv[])
             break;
         }
 
-        Menu(opcao, &tPedidos, &erro, client, deli);
-
-        Clear(); 
+        try
+        {
+            Menu(opcao, &tPedidos, client, deli);
+            Clear();
+        }
+        catch(EntradaException ex)
+        {
+            cout << ex.msgException();
+        }
 
         ExibePedidos(client, deli);
 
         if (opcao == 6){
-            erro = buscaDelivery(deli);
+            try
+            {
+                buscaDelivery(deli);
+            }
+            catch(EntradaException ex)
+            {
+                cout << ex.msgException();
+            }
         }
-        
     }
     return 0;
 }

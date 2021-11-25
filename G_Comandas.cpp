@@ -2,8 +2,9 @@
 #include <string>
 #include "Pedido.hpp"
 #include "Comanda.hpp"
-#include "Cliente.hpp"
+#include "ICliente.hpp"
 #include "Delivery.hpp"
+#include "Mesa.hpp"
 #include "EntradaException.hpp"
 #include <sstream>
 #include <fstream>
@@ -13,8 +14,9 @@
 
 #include "Pedido.cpp"
 #include "Comanda.cpp"
-#include "Cliente.cpp"
+#include "ICliente.cpp"
 #include "Delivery.cpp"
+#include "Mesa.cpp"
 #include "EntradaException.cpp"
 #include "Contadora.cpp"
 
@@ -65,7 +67,7 @@ void cDelivery(Delivery *del, int *tpedidos, Contadora *cont)     // inicia um o
     }
     
     cout << "Prato: ";
-    cin >> prato;
+    std::cin >> prato;
     
     if (prato == 0)
         return;
@@ -259,7 +261,8 @@ void Salvar(Contadora *cont){
     ofstream arq;
     string tamanho, data;
     EntradaException ex;
-    tm *calendario;
+    time_t agora = time(0);
+    tm *calendario = localtime(&agora);
 
     arq.open("Relatorio.txt", ios::app);
     if(!arq.is_open()) {
@@ -267,9 +270,9 @@ void Salvar(Contadora *cont){
         throw ex;
     }
 
-    data = to_string(calendario->tm_yday) + "/" + to_string(calendario->tm_mon) + "/" + to_string(calendario->tm_year);
+    data = to_string(calendario->tm_mday) + "/" + to_string(calendario->tm_mon + 1) + "/" + to_string(calendario->tm_year + 1900);
 
-    arq << "\n" << data << endl;
+    arq << data << endl;
 
     arq << "Valor total --- " <<  "--- Quantidade --- " <<  "--- preco unitario --- " << "--- Prato --- " << endl;
 

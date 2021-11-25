@@ -20,3 +20,13 @@ std::string Delivery::getContato(){
 std::string Delivery::getEndereco(){
     return endereco;
 }
+
+void Delivery::setIdentidade(std::string id)
+{
+    id = identidade;
+}
+
+std::string Delivery::getIdentidade()
+{
+    return identidade;
+}

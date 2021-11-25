@@ -2,11 +2,11 @@
 #define DELIVERY_H
 #pragma once
 	
-#include "Cliente.hpp"
+#include "ICliente.hpp"
 
 namespace pkt_comanda {
 
-class Delivery: public Cliente
+class Delivery: public ICliente
 {
 	private:
 
@@ -15,6 +15,9 @@ class Delivery: public Cliente
 	public:
 
 		Delivery();
+
+		void setIdentidade(std::string id);
+		std::string getIdentidade();
 
 		void setContato(std::string tell);
 		void setEndereco(std::string end);

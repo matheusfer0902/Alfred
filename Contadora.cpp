@@ -8,8 +8,7 @@ using namespace pkt_comanda;
 	
 Contadora::Contadora()
 {
-	int contPedidos = 0;
-	int contDelivery = 0;
+	
 }
 	
 Contadora::~Contadora()
@@ -35,28 +34,12 @@ void Contadora::retiraPrato(int prato, int quantidade){
     contador[prato] -= quantidade;
 }
 
-void Contadora::operacaoClien(int operacao, int **NumCli, int nMesa,Cliente* client, int prato, int quant){
-    client[nMesa-1].mComanda.setQuantidade(client[nMesa-1].mComanda.getQuantidade(prato-1) + quant * operacao, prato-1);    // com base na quantidade atual, soma ou subtrai a quantidade desejada
-    **NumCli = nMesa-1;
-    if(operacao == 1){
-    }
-}
-
-void Contadora::operacaoDeli(int operacao, int **NumCli, Delivery* deliv, int prato, int quant, int i){
-    deliv[i].mComanda.setQuantidade(deliv[i].mComanda.getQuantidade(prato-1) + quant * operacao, prato-1);
-    **NumCli = i;;    // com base na quantidade atual, soma ou subtrai a quantidade desejada
-    if(operacao == 1){
-    }
-}
-
 void Contadora::setContPedidos(int pedidos){
     contPedidos += pedidos;
 }
 void Contadora::setContDelivery(int delivery){
     contDelivery += delivery;
 }
-
-
 
 int Contadora::getContPedidos(){
     return contPedidos;

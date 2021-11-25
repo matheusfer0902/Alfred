@@ -402,6 +402,27 @@ void ExibePedidos(Cliente *clien, Delivery *deliv)     // exibe os pedidos em or
     cout << "\n-----------------------------------------------------\n";
 }
 
+ICliente Detector(ICliente *deli, ICliente *Mesa)
+{
+    string idClient;
+    
+    cout << "           \nDigite 0 para encerrar\n";
+    cout << "Mesa/nome do Cliente: " << endl;
+    cin >> idClient;
+
+    if (idClient[0] >= '0' && idClient[0] <= '9')
+    {
+
+    }
+     else
+    {
+        for (size_t i = 0; i < MAX_CLIENTE; i++)
+        {
+            if (del[i].getIdentidade().find(idClient) != std::string::npos)
+        }
+    }
+}
+
 int main(int argc, char const *argv[])
 {
     int opcao = 0, tPedidos = 0;      // erro para retorno de valores inesperados nas entradas das funções

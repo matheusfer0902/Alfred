@@ -14,20 +14,10 @@ Mesa::~Mesa()
 
 void Mesa::setIdentidade(std::string id)
 {
-    id = identidade;
+    identidade = id;
 }
 
 std::string Mesa::getIdentidade()
 {
     return identidade;
-}
-
-void Mesa::setPessoas(int numeroP)
-{
-    pessoas = numeroP;
-}
-
-int Mesa::getPessoas()
-{
-    return pessoas;
 }

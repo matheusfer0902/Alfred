@@ -23,7 +23,7 @@ std::string Delivery::getEndereco(){
 
 void Delivery::setIdentidade(std::string id)
 {
-    id = identidade;
+    identidade = id;
 }
 
 std::string Delivery::getIdentidade()

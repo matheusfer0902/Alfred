@@ -29,27 +29,30 @@ std::string EntradaException::msgException()
     switch (codigo)
     {
     case 1:
-        return "Quantidade (" + erro + ") nao pode ser negativa!\n";
+        return "\n          Quantidade (" + erro + ") nao pode ser negativa!\n";
 
     case 2:
-        return "Prato " + erro + " inexistente!\n";
+        return "\n          Prato " + erro + " inexistente!\n";
 
     case 3:
-        return "Mesa " + erro + " inexistente!\n";
+        return "\n          Mesa " + erro + " inexistente!\n";
 
     case 4:
-        return "Quantidade (" + erro + ") a retirar nao pode ser maior que a atual!";
+        return "\n          Quantidade (" + erro + ") a retirar nao pode ser maior que a atual!\n";
 
     case 5:
-        return "Cliente \"" + erro + "\" nao encontrado!";
+        return "\n          Cliente \"" + erro + "\" nao encontrado!\n";
 
     case 6:
-        return "Opcao " + erro + " invalida!";
+        return "\n          Opcao " + erro + " invalida!\n";
 
     case 7:
-        return "Nao foi possivel abrir o arquivo \"" + erro + "\"!\n";
+        return "\n          Nao foi possivel abrir o arquivo \"" + erro + "\"!\n";
+
+    case 8:
+        return "\n          Memoria lotada! Por favor, exclua um " + erro + ".\n";
     
     default:
-        return "Erro inesperado";
+        return "\n          Erro inesperado\n";
     }
 }

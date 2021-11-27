@@ -39,116 +39,52 @@ void Clear()    // limpa a tela do prompt de comando de acordo com o sistema ope
 #endif
 }
 
-void cDelivery(Delivery *del, int *tpedidos, Contadora *cont)     // inicia um objeto Delivery, bem como seus atributos
+int cDelivery(Delivery *clie)     // inicia um objeto Delivery, bem como seus atributos
 {
     string ende, conta, id;
     size_t vaz;
-    int quant, prato;
     EntradaException ex;
+    bool cheio = true;
 
     getchar();
-    cout << "\nNome: ";
+    cout << "Nome: ";
     getline(cin, id);
     cout << "Endereco: ";
     getline(cin, ende);
     cout << "Contato: ";
     getline(cin, conta);
-    
-    cout << "Quantidade: ";
-    cin >> quant;
-
-    if (quant == 0)
-        return;
-
-    if (quant < 0)
-    {
-        ex = EntradaException(1, quant);
-        throw ex;
-    }
-    
-    cout << "Prato: ";
-    std::cin >> prato;
-    
-    if (prato == 0)
-        return;
-
-    if (prato < 1 && prato > MAX_PRATOS)
-        {
-            ex = EntradaException(2, prato);
-            throw ex;
-        }
-
-    cont->adicionaPrato(prato - 1, quant);
 
     for (size_t i = 0; i < MAX_CLIENTE; i++)    // procura um objeto "vazio" para iniciar o novo Delivery
     {
-        if (del[i].getIdentidade().find("vazio") != string::npos)
+        if (clie[i].getIdentidade().find("vazio") != string::npos)
         {
+            cheio = false;
             vaz = i;
             break;
         }   
     }
-    *tpedidos += 1;
-    del[vaz].setContato(conta);
-    del[vaz].setEndereco(ende);
-    del[vaz].setIdentidade(id);
-    del[vaz].mComanda.setQuantidade(quant, prato-1);
-    del[vaz].mComanda.setOrdem(*tpedidos);
+    if (cheio)
+    {
+        ex = EntradaException(8, "delivery");
+    }
+    
+    clie[vaz].setContato(conta);
+    clie[vaz].setEndereco(ende);
+    clie[vaz].setIdentidade(id);
+
+    return vaz;
 }
 
-void fecharComanda(Cliente *cli, Delivery *del){     // zera um Cliente/Delivery, junto de seus atributos
-    string idClient;
-    EntradaException ex;
-    bool encontrou = false;
+void fecharComanda(ICliente &clie){     // zera um Cliente/Delivery, junto de seus atributos
 
-    cout << "           \nDigite 0 para encerrar\n";
-    cout << "Mesa/nome do Cliente: " << endl;
-    cin >> idClient;
-
-    if (idClient[0] >= '0' && idClient[0] <= '9')           // identifica se é Cliente pelo primeiro caractere de sua identidade. Sendo número, é cliente (corresponde à mesa)
-    {
-        int nComanda = std::stoi(idClient);                 // utiliza a mesa como referencia para encontrar a posição correspondente no array do cliente
-        if (nComanda >= 1 && nComanda <= MAX_CLIENTE)
-        {
-            cli[nComanda-1].mComanda.setZero();
-            cli[nComanda-1].setIdentidade("vazio");
-        }
-        else{
-            ex = EntradaException(3, nComanda);
-            throw ex;
-        }
-    }
-    else                                                    // nao sendo número, é um Delivery com um nome
-    {
-        for (size_t i = 0; i < MAX_CLIENTE; i++)            // procura nos Delivery alguém com o nome descrito
-        {
-            if (del[i].getIdentidade().find(idClient) != std::string::npos)
-            {
-                encontrou = true;
-
-                del[i].mComanda.setZero();
-                del[i].setIdentidade("vazio");
-                break;
-            }
-        }
-        if (!encontrou)
-        {
-            ex = EntradaException(5, idClient);
-            throw ex;
-        }
-    }
+    clie.setIdentidade("vazio");
+    clie.mComanda.setZero();
 }
 
-void EditaComanda(Contadora *cont, Cliente* client, Delivery* deliv, int operacao, int *NumCli)   //adiciona ou remove pedidos das comandas de acordo com a operação
+void EditaComanda(Contadora *cont, ICliente &clie, int operacao)   //adiciona ou remove pedidos das comandas de acordo com a operação
 {
     int prato, quant;
-    string idClient;
-    bool encontrou = false;                                 // flag para erro relativo a identidade no caso de um nome
     EntradaException ex;
-
-    cout << "\n           Digite 0 para encerrar\n";
-    std::cout << "\nMesa/nome do Cliente: ";
-    cin >> idClient;
     
     while (1)
     {
@@ -170,58 +106,20 @@ void EditaComanda(Contadora *cont, Cliente* client, Delivery* deliv, int operaca
         if (prato == 0)
             return;
 
-        if (prato < 1 && prato > MAX_PRATOS)
+        if (prato < 1 || prato > MAX_PRATOS)
         {
             ex = EntradaException(2, prato);
             throw ex;
+        }   
+            
+        if (clie.mComanda.getQuantidade(prato-1) + quant * operacao >= 0) {   // avalia se a quantidade a retirar é maior que a atual
+            clie.mComanda.setQuantidade(clie.mComanda.getQuantidade(prato-1) + quant * operacao, prato-1);    // com base na quantidade atual, soma ou subtrai a quantidade desejada
         }
-
-        if (idClient[0] >= '0' && idClient[0] <= '9')       // identifica um Cliente por ter um número de mesa com identidade
-        {   
-            int nMesa = std::stoi(idClient);
-            if (nMesa >= 1 && nMesa <= MAX_CLIENTE)         // avalia se a mesa do cliente existe
-            {
-                if (client[nMesa-1].mComanda.getQuantidade(prato-1) + quant * operacao >= 0)    // avalia se a quantidade a retirar é maior que a atual
-                {
-                    client[nMesa-1].mComanda.setQuantidade(client[nMesa-1].mComanda.getQuantidade(prato-1) + quant * operacao, prato-1);    // com base na quantidade atual, soma ou subtrai a quantidade desejada
-                    client[nMesa-1].setIdentidade(idClient);
-                    *NumCli = nMesa-1;
-                }
-                else{
-                    ex = EntradaException(4, quant);
-                    throw ex;
-                }
-            }
-            else{
-                ex = EntradaException(3, nMesa);
-                throw ex;
-            }
+        else{
+            ex = EntradaException(4, quant);
+            throw ex;
         }
-        else
-        {
-            for (size_t i = 0; i < MAX_CLIENTE; i++)        // no caso de um Delivery, busca no array o nome digitado
-            {
-                if (deliv[i].getIdentidade().find(idClient) != std::string::npos)
-                {
-                    encontrou = true;
-
-                    if (deliv[i].mComanda.getQuantidade(prato-1) + quant * operacao >= 0)       // avalia quantidade digitada
-                    {
-                        deliv[i].mComanda.setQuantidade(deliv[i].mComanda.getQuantidade(prato-1) + quant * operacao, prato-1);
-                        *NumCli = i;
-                        break;
-                    }
-                    else{
-                        ex = EntradaException(4, quant);
-                        throw ex;
-                    }
-                }
-            }
-            if (!encontrou){
-                ex = EntradaException(5, idClient);
-                throw ex;
-            }
-        }
+        
         if(operacao == 1) {
             cont->adicionaPrato(prato - 1, quant);
         } else {
@@ -230,31 +128,14 @@ void EditaComanda(Contadora *cont, Cliente* client, Delivery* deliv, int operaca
     }
 }
 
-void buscaDelivery(Delivery *deliv)
+void buscaDelivery(ICliente &clie)
 {
-    string nome;
-    bool encontrou = false;
     EntradaException ex;
+    ICliente *Iaux = &clie;
+    Delivery *Daux = dynamic_cast <Delivery*> (Iaux);
 
-    cout << "\nNome do Cliente: ";
-    getchar();
-    getline(cin, nome);
-
-    for (size_t i = 0; i < MAX_CLIENTE; i++)
-    {
-        if (deliv[i].getIdentidade().find(nome) != string::npos)
-        {
-            cout << "\nNome: " + deliv[i].getIdentidade() + "\nContato: " + deliv[i].getContato() + "\nEndereco: " + deliv[i].getEndereco() << endl;
-            encontrou = true;
-            break;
-        }
-    }
-    if (!encontrou)
-    {
-        ex = EntradaException(5, nome);
-        throw ex;
-    }
     cout << "\n-----------------------------------------------------\n";
+    cout << "\nNome: " + Daux->getIdentidade() + "\nContato: " + Daux->getContato() + "\nEndereco: " + Daux->getEndereco() << endl;
 }
 
 void Salvar(Contadora *cont){
@@ -272,7 +153,7 @@ void Salvar(Contadora *cont){
 
     data = to_string(calendario->tm_mday) + "/" + to_string(calendario->tm_mon + 1) + "/" + to_string(calendario->tm_year + 1900);
 
-    arq << data << endl;
+    arq << "--------------------------------" + data + "--------------------------------\n\n";
 
     arq << "Valor total --- " <<  "--- Quantidade --- " <<  "--- preco unitario --- " << "--- Prato --- " << endl;
 
@@ -294,43 +175,50 @@ void Salvar(Contadora *cont){
     }
     arq << "Total clientes: " << cont->getContPedidos() << endl;
     arq << "Total Delivery: " << cont->getContDelivery() << endl;
-    arq << "Renda: " << cont->calculaValor() << endl;
+    arq << "Renda: " << cont->calculaValor() << endl << endl;
     arq.close();
 }
 
-void Menu(int opcao, int *tpedidos, Cliente *clien, Delivery *deli, Contadora *cont)  // retorna para a main os erros das funções
+void Menu(int opcao, int *tpedidos, ICliente &clie, Contadora *cont)  // retorna para a main os erros das funções
 {
-    int NumCli;
     EntradaException ex;
 
     switch (opcao)
     {
     case 1:                                             // inicia um novo cliente, seus atributos, e atribui uma ordem conforme tpedidos incrementa
-        EditaComanda(cont, clien, deli, 1, &NumCli);
+        EditaComanda(cont, clie, 1);
         *tpedidos += 1;
-        clien[NumCli].mComanda.setOrdem(*tpedidos);
+        clie.mComanda.setOrdem(*tpedidos);
         cont->setContPedidos(1);
+        Clear();
         break;
 
     case 2:                                             // adiciona à comanda de um cliente um ou mais pedidos
-        EditaComanda(cont, clien, deli, 1, &NumCli);
+        EditaComanda(cont, clie, 1);
+        Clear();
         break;
 
     case 3:                                             // retira da comanda de um cliente/delivery um ou mais pedidos
-        EditaComanda(cont, clien, deli, -1, &NumCli);
+        EditaComanda(cont, clie, -1);
+        Clear();
         break;
 
     case 4:                                             // zera os atributos de um cliente/delivery, além da ordem
-        fecharComanda(clien, deli);
+        fecharComanda(clie);
+        Clear();
         break;
 
     case 5:                                             // inicia um novo Delivery, seus atributos, e uma ordem também conforme tpedidos incrementa
-        cDelivery(deli, tpedidos, cont);
+        EditaComanda(cont, clie, 1);
+        *tpedidos += 1;
+        clie.mComanda.setOrdem(*tpedidos);
         cont->setContDelivery(1);
+        Clear();
         break;
 
     case 6:
-        //buscaDelivery
+        Clear();
+        buscaDelivery(clie);
         break;
 
     case 7:
@@ -343,16 +231,16 @@ void Menu(int opcao, int *tpedidos, Cliente *clien, Delivery *deli, Contadora *c
     }
 }
 
-void ExibePedidos(Cliente *clien, Delivery *deliv)     // exibe os pedidos em ordem crescente (ordem de chegada)
+void ExibePedidos(Mesa *clie, Delivery *deliv)     // exibe os pedidos em ordem crescente (ordem de chegada)
 {
     int primeiro = 10000;           // responsável por orientar a exibição com número de ordem correta
     bool imprimiu = 1;              // manter o método da bolha até que não haja nada a ser impresso
 
     for (size_t i = 0; i < MAX_CLIENTE; i++)                // procura o Cliente/Delivery com menor ordem para exibir a partir
     {
-        if (clien[i].mComanda.getOrdem() != 0 && primeiro > clien[i].mComanda.getOrdem())  
+        if (clie[i].mComanda.getOrdem() != 0 && primeiro > clie[i].mComanda.getOrdem())  
         {
-            primeiro = clien[i].mComanda.getOrdem();
+            primeiro = clie[i].mComanda.getOrdem();
         }
         if (deliv[i].mComanda.getOrdem() != 0 && primeiro > deliv[i].mComanda.getOrdem())  
         {
@@ -367,18 +255,18 @@ void ExibePedidos(Cliente *clien, Delivery *deliv)     // exibe os pedidos em or
         imprimiu = 0;
         for (size_t i = 0; i < MAX_CLIENTE ; i++)  
         {
-            if (clien[i].mComanda.getOrdem() == primeiro)   // procura o Cliente com a ordem correta para exibição
+            if (clie[i].mComanda.getOrdem() == primeiro)   // procura o Cliente com a ordem correta para exibição
             {
                 primeiro++;
                 imprimiu = 1;
 
-                cout << "\nPedido N.: " << clien[i].mComanda.getOrdem() << " ----- Mesa: " << clien[i].getIdentidade() << endl; 
+                cout << "\nPedido N.: " << clie[i].mComanda.getOrdem() << " ----- Mesa: " << clie[i].getIdentidade() << endl; 
 
                 for (size_t j = 0; j < MAX_PRATOS; j++)     // exibe os pedidos de acordo com a quantidade
                 {
-                    if (clien[i].mComanda.getQuantidade(j) > 0)
+                    if (clie[i].mComanda.getQuantidade(j) > 0)
                     {
-                        cout << "        -> " << clien[i].mComanda.getQuantidade(j) << " " << clien[i].mComanda.getStrPrato(j) << endl;
+                        cout << "        -> " << clie[i].mComanda.getQuantidade(j) << " " << clie[i].mComanda.getStrPrato(j) << endl;
                     }
                 }
             }
@@ -402,37 +290,52 @@ void ExibePedidos(Cliente *clien, Delivery *deliv)     // exibe os pedidos em or
     cout << "\n-----------------------------------------------------\n";
 }
 
-ICliente Detector(ICliente *deli, ICliente *Mesa)
+ICliente &Localizador(Delivery *deli, Mesa *Me)
 {
     string idClient;
+    EntradaException ex;
     
-    cout << "           \nDigite 0 para encerrar\n";
+    cout << "\n           Digite 0 para encerrar\n";
     cout << "Mesa/nome do Cliente: " << endl;
     cin >> idClient;
 
     if (idClient[0] >= '0' && idClient[0] <= '9')
     {
-
+        int nComanda = std::stoi(idClient);
+        if (nComanda >= 1 && nComanda <= MAX_CLIENTE)
+        {
+            Me[nComanda].setIdentidade(idClient);
+            return Me[nComanda];
+        }
+        else{
+            ex = EntradaException(3, nComanda);
+            throw ex;
+        }
     }
-     else
+    else
     {
         for (size_t i = 0; i < MAX_CLIENTE; i++)
         {
-            if (del[i].getIdentidade().find(idClient) != std::string::npos)
+            if (deli[i].getIdentidade().find(idClient) != std::string::npos)
+            {
+                return deli[i];
+            }
         }
+        ex = EntradaException(5, idClient);
+        throw ex;
     }
 }
 
 int main(int argc, char const *argv[])
 {
     int opcao = 0, tPedidos = 0;      // erro para retorno de valores inesperados nas entradas das funções
-    Cliente client[MAX_CLIENTE];      // tpedidos para controle da ordem das comandas e armazena total de comandas do dia
+    Mesa mesas[MAX_CLIENTE];      // tpedidos para controle da ordem das comandas e armazena total de comandas do dia
     Delivery deli[MAX_CLIENTE];
     Contadora cont;
 
     cout << "           Bem-vindo!\n";
 
-    while (opcao != 7)
+    while (1)
     {
         cout << "\nSelecione uma opcao:\n"
         << "1 - Nova mesa\n"
@@ -447,26 +350,23 @@ int main(int argc, char const *argv[])
 
         try
         {
-            Menu(opcao, &tPedidos, client, deli, &cont);
-            Clear();
+            if (opcao == 7)
+            {
+                Salvar(&cont);
+                break;
+            }
+            if (opcao == 5)
+                Menu(opcao, &tPedidos, deli[cDelivery(deli)], &cont);
+            else
+                Menu(opcao, &tPedidos, Localizador(deli, mesas), &cont);
         }
-        catch(EntradaException ex)
+        catch(EntradaException &ex)
         {
             cout << ex.msgException();
         }
 
-        ExibePedidos(client, deli);
+        ExibePedidos(mesas, deli);
 
-        if (opcao == 6){
-            try
-            {
-                buscaDelivery(deli);
-            }
-            catch(EntradaException ex)
-            {
-                cout << ex.msgException();
-            }
-        }
     }
     return 0;
 }

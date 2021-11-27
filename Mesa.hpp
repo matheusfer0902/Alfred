@@ -19,9 +19,6 @@ class Mesa : public ICliente
 		void setIdentidade(std::string id);
 		std::string getIdentidade();
 
-		void setPessoas(int numeroP);
-		int getPessoas();
-
 };
 };
 #endif

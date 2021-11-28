@@ -12,14 +12,6 @@
 #include <string.h>
 #include <ctime>
 
-#include "Pedido.cpp"
-#include "Comanda.cpp"
-#include "ICliente.cpp"
-#include "Delivery.cpp"
-#include "Mesa.cpp"
-#include "EntradaException.cpp"
-#include "Contadora.cpp"
-
 #define MAX_CLIENTE 20
 #define MAX_PRATOS 10
 

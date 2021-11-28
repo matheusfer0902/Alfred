@@ -4,6 +4,8 @@
 #include <string>
 #include <fstream>
 
+#define MAX_PRATOS 10
+
 namespace pkt_comanda {
 	
 class Contadora  

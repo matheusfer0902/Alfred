@@ -221,10 +221,6 @@ void Menu(int opcao, int *tpedidos, ICliente &clie, Contadora *cont)  // retorna
         buscaDelivery(clie);
         break;
 
-    case 7:
-        Salvar(cont);
-        break;
-
     default:  
         ex = EntradaException(6, opcao);
         throw ex;

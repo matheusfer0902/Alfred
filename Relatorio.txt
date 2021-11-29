@@ -1,0 +1,12 @@
+--------------------------------28/11/2021--------------------------------
+
+Valor total --- --- Quantidade --- --- preco unitario --- --- Prato --- 
+   14.99                1                   14.99            Executivo
+   74.97                3                   24.99            Churrasco
+   9.98                 2                   4.99            Cafe
+   4.99                 1                   4.99            Suco
+   43.5                 2                   21.75            Feijoada
+Total clientes: 2
+Total Delivery: 1
+Renda: 148.43
+
